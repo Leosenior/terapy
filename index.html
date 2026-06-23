@@ -295,7 +295,7 @@ const firebaseConfig = {
   let db = null;
   const syncStatus = document.getElementById('syncStatus');
 
-  if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "INSERISCI_QUI_API_KEY") {
+  if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSyDSXymQ3y9woYgggq_7rerIpasQK4PMTQo") {
     try {
       firebase.initializeApp(firebaseConfig);
       db = firebase.database();
@@ -575,5 +575,24 @@ const firebaseConfig = {
   render();
 })();
 </script>
-</body>
+<script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyDSXymQ3y9woYgggq_7rerIpasQK4PMTQo",
+    authDomain: "promemoria-4203d.firebaseapp.com",
+    databaseURL: "https://promemoria-4203d-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "promemoria-4203d",
+    storageBucket: "promemoria-4203d.firebasestorage.app",
+    messagingSenderId: "243468925961",
+    appId: "1:243468925961:web:aa01c6c17822f9cb83ccd8"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
 </html>
