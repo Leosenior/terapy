@@ -296,26 +296,47 @@ const firebaseConfig = {
   let db = null;
   const syncStatus = document.getElementById('syncStatus');
 
-  if(firebaseConfig.apiKey !== "INSERISCI_QUI_API_KEY") {
-    firebase.initializeApp(firebaseConfig);
-    db = firebase.database();
-    
-    // Ascolta i cambiamenti nel Cloud
-    db.ref('therapyData').on('value', (snapshot) => {
-      const data = snapshot.val();
-      if(data) {
-        state = {...state, ...data};
-        syncStatus.className = 'sync-status online';
-        syncStatus.querySelector('span').textContent = 'Cloud Sincronizzato';
-        render();
-      }
-    });
-  } else {
-    // Caricamento Locale se Firebase non è configurato
-    const raw = localStorage.getItem(STORE_LOCAL);
-    if(raw) state = JSON.parse(raw);
-    state.selectedDate = isoLocal(new Date());
+  if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "INSERISCI_QUI_API_KEY") {
+    try {
+      firebase.initializeApp(firebaseConfig);
+      db = firebase.database();
+      
+      // Controllo connessione reale al server Google
+      const connectedRef = db.ref(".info/connected");
+      connectedRef.on("value", (snap) => {
+        if (snap.val() === true) {
+          syncStatus.className = 'sync-status online';
+          syncStatus.querySelector('span').textContent = 'Cloud Connesso';
+          // Se siamo connessi, nascondiamo l'avviso giallo di configurazione
+          const warn = document.querySelector('#medsPanel .warn');
+          if(warn) warn.style.display = 'none';
+        } else {
+          syncStatus.className = 'sync-status offline';
+          syncStatus.querySelector('span').textContent = 'Cloud Disconnesso (Riconnessione...)';
+        }
+      });
+
+      // Ascolta i cambiamenti nel Cloud
+      db.ref('therapyData').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if(data) {
+          state = {...state, ...data};
+          render();
+        }
+      }, (error) => {
+        console.error("Errore Firebase:", error);
+        syncStatus.className = 'sync-status offline';
+        syncStatus.querySelector('span').textContent = 'Errore Permessi Database';
+      });
+    } catch(e) {
+      console.error("Errore Init Firebase:", e);
+    }
   }
+
+  // Caricamento iniziale da LocalStorage (per velocità e offline)
+  const raw = localStorage.getItem(STORE_LOCAL);
+  if(raw) state = JSON.parse(raw);
+  state.selectedDate = isoLocal(new Date());
 
   function save(){
     if(db) {
