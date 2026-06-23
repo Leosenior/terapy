@@ -5,173 +5,302 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Terapia - tracker</title>
 <style>
+:root {
+  --primary: #1976d2;
+  --primary-light: #e3f2fd;
+  --primary-dark: #1565c0;
+  --success: #4caf50;
+  --success-light: #e8f5e9;
+  --danger: #e53935;
+  --danger-light: #ffebee;
+  --warning: #ff9800;
+  --gray: #757575;
+  --gray-light: #f5f5f5;
+  --border: #e0e0e0;
+  --text: #212121;
+  --text-secondary: #666;
+  --radius: 10px;
+}
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
-.container { max-width: 900px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); overflow: hidden; }
-.header { background: #1976d2; color: white; padding: 20px; text-align: center; }
-.header h1 { font-size: 24px; margin-bottom: 8px; }
-.sync-status { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; margin-top: 8px; }
-.sync-ok { background: #4caf50; }
-.sync-off { background: #ff9800; }
-.sync-err { background: #f44336; }
-.tabs { display: flex; background: #e3f2fd; border-bottom: 2px solid #1976d2; }
-.tab { flex: 1; padding: 14px; text-align: center; cursor: pointer; font-weight: 500; transition: background 0.2s; }
-.tab.active { background: #1976d2; color: white; }
-.tab-content { display: none; padding: 20px; }
-.tab-content.active { display: block; }
-.card { background: #f9f9f9; border-radius: 8px; padding: 16px; margin-bottom: 12px; border: 1px solid #e0e0e0; }
-.card h3 { margin-bottom: 12px; color: #333; }
-.stat { display: flex; justify-content: space-between; margin: 8px 0; }
-.stat-label { color: #666; }
-.stat-value { font-weight: bold; color: #1976d2; }
-.btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin: 4px; transition: background 0.2s; }
-.btn-primary { background: #1976d2; color: white; }
-.btn-primary:hover { background: #1565c0; }
-.btn-danger { background: #f44336; color: white; }
-.btn-danger:hover { background: #d32f2f; }
-.btn-secondary { background: #757575; color: white; }
-.btn-secondary:hover { background: #616161; }
-.btn-success { background: #4caf50; color: white; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--gray-light); color: var(--text); min-height: 100vh; }
+.app { max-width: 520px; margin: 0 auto; background: #fff; min-height: 100vh; box-shadow: 0 0 20px rgba(0,0,0,.08); }
+
+/* HEADER */
+.header { background: var(--primary); color: #fff; padding: 18px 20px 14px; text-align: center; position: relative; }
+.header h1 { font-size: 22px; font-weight: 700; letter-spacing: .5px; }
+.sync-badge { display: inline-block; padding: 3px 10px; border-radius: 10px; font-size: 11px; margin-top: 6px; font-weight: 500; }
+.sync-ok { background: #4caf50; color: #fff; }
+.sync-off { background: #ff9800; color: #fff; }
+.sync-err { background: #e53935; color: #fff; }
+
+/* TABS */
+.tabs { display: flex; background: var(--primary-light); border-bottom: 2px solid var(--primary); }
+.tab-btn { flex: 1; padding: 13px 0; text-align: center; font-weight: 600; font-size: 14px; cursor: pointer; border: none; background: none; color: var(--primary); transition: all .2s; }
+.tab-btn.active { background: var(--primary); color: #fff; }
+.tab-btn:hover:not(.active) { background: #bbdefb; }
+
+/* TAB CONTENT */
+.tab-panel { display: none; padding: 16px; }
+.tab-panel.active { display: block; }
+
+/* CARDS */
+.card { background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 14px; }
+.card h3 { font-size: 15px; margin-bottom: 12px; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.card-subtitle { font-size: 12px; color: var(--text-secondary); margin-bottom: 10px; }
+
+/* STATS */
+.stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+.stat-box { background: var(--gray-light); border-radius: 8px; padding: 12px; text-align: center; }
+.stat-box .label { font-size: 12px; color: var(--text-secondary); margin-bottom: 4px; }
+.stat-box .value { font-size: 20px; font-weight: 700; color: var(--primary); }
+.stat-box .sub { font-size: 11px; color: var(--text-secondary); }
+
+/* WEEK NAV */
+.week-nav { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 12px; }
+.week-nav button { background: var(--primary-light); border: 1px solid var(--primary); color: var(--primary); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; }
+.week-nav button:hover { background: var(--primary); color: #fff; }
+.week-nav span { font-weight: 600; font-size: 14px; min-width: 180px; text-align: center; }
+
+/* PROGRESS */
+.progress-wrap { margin: 8px 0; }
+.progress-bar { width: 100%; height: 18px; background: #e0e0e0; border-radius: 9px; overflow: hidden; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--success), #81c784); border-radius: 9px; transition: width .4s ease; min-width: 0; }
+.progress-label { text-align: right; font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+
+/* DOSE ITEMS */
+.dose-list { display: flex; flex-direction: column; gap: 6px; }
+.dose-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #fff; transition: all .2s; }
+.dose-item.taken { background: var(--success-light); border-color: var(--success); }
+.dose-item.skipped { background: var(--danger-light); border-color: var(--danger); }
+.dose-left { flex: 1; }
+.dose-name { font-weight: 600; font-size: 14px; }
+.dose-meta { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.dose-actions { display: flex; gap: 4px; }
+
+/* BUTTONS */
+.btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 13px; font-weight: 500; transition: all .2s; display: inline-flex; align-items: center; gap: 4px; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--primary); color: #fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color: #fff; }
 .btn-success:hover { background: #388e3c; }
-input, select { padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; margin: 4px; }
-input[type="date"], input[type="number"], input[type="text"] { width: 100%; }
-.form-group { margin-bottom: 12px; }
-.form-group label { display: block; margin-bottom: 4px; font-weight: 500; color: #555; }
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-.modal.active { display: flex; }
-.modal-content { background: white; border-radius: 12px; padding: 24px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
-.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.modal-header h2 { font-size: 20px; }
-.close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #999; }
-.drug-item { background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-.dose-item { background: white; border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
-.dose-item.taken { background: #e8f5e9; border-color: #4caf50; }
-.dose-info { flex: 1; }
-.dose-name { font-weight: bold; }
-.dose-time { font-size: 12px; color: #666; }
-.week-day { display: inline-block; padding: 4px 8px; margin: 2px; border-radius: 4px; background: #e3f2fd; font-size: 12px; }
-.empty-state { text-align: center; padding: 40px; color: #999; }
-.progress-bar { width: 100%; height: 20px; background: #e0e0e0; border-radius: 10px; overflow: hidden; margin: 8px 0; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, #4caf50, #8bc34a); transition: width 0.3s; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #c62828; }
+.btn-outline { background: #fff; border: 1px solid var(--border); color: var(--text); }
+.btn-outline:hover { background: var(--gray-light); }
+.btn-sm { padding: 6px 10px; font-size: 12px; }
+.btn-block { width: 100%; justify-content: center; }
+
+/* FORMS */
+.form-group { margin-bottom: 14px; }
+.form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.form-group input, .form-group select { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 14px; background: #fff; }
+.form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(25,118,210,.15); }
+.form-row { display: flex; gap: 8px; }
+.form-row > * { flex: 1; }
+.inline-row { display: flex; align-items: center; gap: 8px; }
+.inline-row span { font-size: 13px; white-space: nowrap; }
+.inline-row input { width: 70px; }
+
+/* CHECKBOXES */
+.days-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.day-chip { display: flex; align-items: center; gap: 4px; padding: 5px 10px; border: 1px solid var(--border); border-radius: 6px; cursor: pointer; font-size: 12px; user-select: none; transition: all .2s; }
+.day-chip input { display: none; }
+.day-chip.checked { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+/* SPLIT ROW */
+.split-row { display: flex; gap: 8px; }
+.split-item { flex: 1; text-align: center; }
+.split-item label { font-size: 11px; color: var(--text-secondary); display: block; margin-bottom: 2px; }
+.split-item input { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; text-align: center; font-size: 14px; }
+
+/* DRUG LIST */
+.drug-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: #fff; }
+.drug-info { flex: 1; }
+.drug-info .name { font-weight: 600; font-size: 14px; }
+.drug-info .details { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
+.drug-info .days { display: flex; gap: 3px; margin-top: 4px; flex-wrap: wrap; }
+.drug-info .days span { background: var(--primary-light); color: var(--primary); padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: 500; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 1000; align-items: flex-end; justify-content: center; }
+.modal-overlay.open { display: flex; }
+.modal-box { background: #fff; border-radius: 16px 16px 0 0; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; padding: 20px; animation: slideUp .3s ease; }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+.modal-header h2 { font-size: 18px; }
+.modal-close { background: none; border: none; font-size: 26px; color: #999; cursor: pointer; padding: 0 4px; }
+.modal-close:hover { color: #333; }
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border); }
+
+/* EMPTY STATE */
+.empty { text-align: center; padding: 30px 16px; color: #999; font-size: 14px; }
+
+/* DISCLAIMER */
+.disclaimer { font-size: 11px; color: #999; text-align: center; padding: 8px 16px; border-top: 1px solid var(--border); margin-top: 8px; }
+
+/* HISTORY */
+.history-date { font-weight: 600; font-size: 13px; color: var(--primary); margin: 12px 0 6px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+.history-date:first-child { margin-top: 0; }
+
+/* TOOLS */
+.tools-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 </style>
 </head>
 <body>
 
-<div class="container">
+<div class="app">
+  <!-- HEADER -->
   <div class="header">
     <h1>💊 Terapia</h1>
-    <div id="syncStatus" class="sync-status sync-off">⏳ Connessione...</div>
+    <div id="syncBadge" class="sync-badge sync-off">⏳ Connessione...</div>
   </div>
 
+  <!-- TABS -->
   <div class="tabs">
-    <div class="tab active" data-tab="week">Settimana</div>
-    <div class="tab" data-tab="drugs">Farmaci</div>
-    <div class="tab" data-tab="history">Storico</div>
+    <button class="tab-btn active" onclick="switchTab('week')">Settimana</button>
+    <button class="tab-btn" onclick="switchTab('drugs')">Farmaci</button>
+    <button class="tab-btn" onclick="switchTab('history')">Storico</button>
   </div>
 
-  <!-- Tab Settimana -->
-  <div class="tab-content active" id="tab-week">
-    <div class="card">
-      <h3>📊 Riepilogo</h3>
-      <div class="stat">
-        <span class="stat-label">Prese oggi</span>
-        <span class="stat-value" id="takenToday">0 / 0</span>
+  <!-- ==================== TAB SETTIMANA ==================== -->
+  <div class="tab-panel active" id="panel-week">
+    <!-- Navigazione settimana -->
+    <div class="week-nav">
+      <button onclick="changeWeek(-1)">←</button>
+      <span id="weekLabel">—</span>
+      <button onclick="changeWeek(1)">→</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-box">
+        <div class="label">Prese oggi</div>
+        <div class="value" id="statTodayTaken">0 / 0</div>
+        <div class="sub" id="statTodaySub">Nessuna voce</div>
       </div>
-      <div class="stat">
-        <span class="stat-label">Totale settimana</span>
-        <span class="stat-value" id="takenWeek">0 / 0</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Da prendere oggi</span>
-        <span class="stat-value" id="pendingToday">0 voci</span>
-      </div>
-      <div class="stat">
-        <span class="stat-label">Completamento settimana</span>
-        <span class="stat-value" id="weekCompletion">0%</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+      <div class="stat-box">
+        <div class="label">Totale settimana</div>
+        <div class="value" id="statWeekTaken">0 / 0</div>
+        <div class="sub" id="statWeekSub">Nessuna voce</div>
       </div>
     </div>
 
-    <div class="card">
-      <h3>📅 Da prendere oggi</h3>
-      <div id="todayDoses"></div>
+    <div class="stats-grid" style="grid-template-columns:1fr 1fr;">
+      <div class="stat-box">
+        <div class="label">Da prendere oggi</div>
+        <div class="value" id="statPending" style="color:var(--warning);">0 voci</div>
+      </div>
+      <div class="stat-box">
+        <div class="label">Completamento settimana</div>
+        <div class="value" id="statCompletion" style="color:var(--success);">0%</div>
+      </div>
     </div>
+
+    <!-- Progress -->
+    <div class="progress-wrap">
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+
+    <!-- Dosi oggi -->
+    <div class="card" style="margin-top:12px;">
+      <h3>📋 Da prendere oggi</h3>
+      <div class="dose-list" id="todayDoses">
+        <div class="empty">Nessuna dose prevista</div>
+      </div>
+    </div>
+
+    <div class="disclaimer">App per promemoria. Non sostituisce medico o farmacista.</div>
   </div>
 
-  <!-- Tab Farmaci -->
-  <div class="tab-content" id="tab-drugs">
+  <!-- ==================== TAB FARMACI ==================== -->
+  <div class="tab-panel" id="panel-drugs">
+    <!-- Config globale -->
     <div class="card">
       <h3>⚙️ Configurazione globale</h3>
       <div class="form-group">
-        <label>Data inizio ciclo</label>
-        <input type="date" id="globalStartDate">
+        <label>Data inizio ciclo globale</label>
+        <input type="date" id="cfgStartDate">
       </div>
-      <div class="form-group">
-        <label>Durata ciclo</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="number" id="globalDuration" value="30" min="1">
-          <select id="globalDurationUnit">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Durata ciclo globale</label>
+          <input type="number" id="cfgDuration" value="30" min="1">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <select id="cfgDurationUnit">
             <option value="days">Giorni</option>
             <option value="weeks">Settimane</option>
           </select>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="saveGlobalConfig()">💾 Salva configurazione</button>
+      <button class="btn btn-primary btn-block" onclick="saveGlobalConfig()">💾 Salva configurazione</button>
     </div>
 
+    <!-- Lista farmaci -->
     <div class="card">
       <h3>💊 Farmaci</h3>
-      <button class="btn btn-primary" onclick="openDrugModal()">+ Aggiungi farmaco</button>
-      <div id="drugList" style="margin-top: 16px;"></div>
+      <div class="tools-row" style="margin-bottom:12px; margin-top:0;">
+        <button class="btn btn-primary" onclick="openAddDrug()">+ Aggiungi farmaco</button>
+        <button class="btn btn-danger" onclick="openRemoveDrug()">🗑️ Rimuovi farmaco</button>
+      </div>
+      <div id="drugList"><div class="empty">Nessun farmaco configurato</div></div>
     </div>
 
+    <!-- Strumenti -->
     <div class="card">
       <h3>🔧 Strumenti</h3>
-      <button class="btn btn-secondary" onclick="exportJSON()">⬇️ Export JSON</button>
-      <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">⬆️ Import JSON</button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
-      <button class="btn btn-danger" onclick="resetData()">🗑️ Reset dati</button>
+      <div class="tools-row">
+        <button class="btn btn-outline" onclick="exportJSON()">⬇️ Export JSON</button>
+        <button class="btn btn-outline" onclick="document.getElementById('importFile').click()">⬆️ Import JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)">
+        <button class="btn btn-danger" onclick="resetAll()">🔄 Reset template</button>
+      </div>
+      <p style="font-size:11px;color:#999;margin-top:8px;">JSON backup / import</p>
     </div>
   </div>
 
-  <!-- Tab Storico -->
-  <div class="tab-content" id="tab-history">
+  <!-- ==================== TAB STORICO ==================== -->
+  <div class="tab-panel" id="panel-history">
     <div class="card">
-      <h3>📜 Database storico somministrazioni</h3>
-      <div id="historyList"></div>
+      <h3>📜 Database storico</h3>
+      <p class="card-subtitle">Database storico delle somministrazioni registrate.</p>
+      <div id="historyList"><div class="empty">Nessuna somministrazione registrata</div></div>
     </div>
   </div>
 </div>
 
-<!-- Modal Nuovo Farmaco -->
-<div class="modal" id="drugModal">
-  <div class="modal-content">
+<!-- ==================== MODAL AGGIUNGI/MODIFICA FARMACO ==================== -->
+<div class="modal-overlay" id="modalDrug">
+  <div class="modal-box">
     <div class="modal-header">
-      <h2 id="modalTitle">Nuovo Farmaco</h2>
-      <button class="close-btn" onclick="closeDrugModal()">&times;</button>
+      <h2 id="modalDrugTitle">Nuovo Farmaco</h2>
+      <button class="modal-close" onclick="closeModalDrug()">×</button>
     </div>
-    <form id="drugForm" onsubmit="saveDrug(event)">
+
+    <div class="form-group">
+      <label>Nome farmaco</label>
+      <input type="text" id="fName" placeholder="es. Vitamina D">
+    </div>
+    <div class="form-row">
       <div class="form-group">
-        <label>Nome farmaco *</label>
-        <input type="text" id="drugName" required>
-      </div>
-      <div class="form-group">
-        <label>Data Inizio *</label>
-        <input type="date" id="drugStartDate" required>
+        <label>Data Inizio</label>
+        <input type="date" id="fStart">
       </div>
       <div class="form-group">
         <label>Data Fine (opzionale)</label>
-        <input type="date" id="drugEndDate">
+        <input type="date" id="fEnd">
       </div>
-      <div class="form-group">
-        <label>Dose Totale Iniziale (es. 1g) *</label>
-        <input type="text" id="drugDose" placeholder="es. 1g" required>
-      </div>
+    </div>
+    <div class="form-group">
+      <label>Dose Totale Iniziale (es. 1g)</label>
+      <input type="text" id="fDose" placeholder="es. 1g">
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Operazione Rampa</label>
-        <select id="drugRampOp">
+        <select id="fRampOp">
           <option value="none">Nessuna (dose fissa)</option>
           <option value="+">Aumenta (+)</option>
           <option value="-">Sottrai (-)</option>
@@ -179,65 +308,95 @@ input[type="date"], input[type="number"], input[type="text"] { width: 100%; }
       </div>
       <div class="form-group">
         <label>Variazione Totale (es. 20mcg)</label>
-        <input type="text" id="drugRampDelta" placeholder="es. 20mcg">
+        <input type="text" id="fRampDelta" placeholder="es. 20mcg">
       </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Limite Totale (stop)</label>
-        <input type="text" id="drugRampLimit" placeholder="es. 2g">
+        <input type="text" id="fRampLimit" placeholder="es. 2g">
       </div>
       <div class="form-group">
         <label>Frequenza variazione</label>
-        <div style="display: flex; align-items: center; gap: 8px;">
+        <div class="inline-row">
           <span>Ogni</span>
-          <input type="number" id="drugRampFreq" value="7" min="1" style="width: 80px;">
+          <input type="number" id="fRampFreq" value="7" min="1">
           <span>giorni</span>
         </div>
       </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label>Durata (se Data Fine vuota)</label>
-        <div style="display: flex; gap: 8px;">
-          <input type="number" id="drugDuration" value="30" min="1">
-          <select id="drugDurationUnit">
-            <option value="days">Giorni</option>
-            <option value="weeks">Settimane</option>
-            <option value="months">Mesi</option>
-          </select>
-        </div>
+        <input type="number" id="fDur" value="30" min="1">
       </div>
       <div class="form-group">
-        <label>Giorni della settimana</label>
-        <div style="display: flex; flex-wrap: wrap; gap: 4px;">
-          <label><input type="checkbox" class="weekDay" value="1"> Lun</label>
-          <label><input type="checkbox" class="weekDay" value="2"> Mar</label>
-          <label><input type="checkbox" class="weekDay" value="3"> Mer</label>
-          <label><input type="checkbox" class="weekDay" value="4"> Gio</label>
-          <label><input type="checkbox" class="weekDay" value="5"> Ven</label>
-          <label><input type="checkbox" class="weekDay" value="6"> Sab</label>
-          <label><input type="checkbox" class="weekDay" value="0"> Dom</label>
-        </div>
+        <label>Unità</label>
+        <select id="fDurUnit">
+          <option value="days">Giorni</option>
+          <option value="weeks">Settimane</option>
+          <option value="months">Mesi</option>
+        </select>
       </div>
-      <div class="form-group">
-        <label>Suddivisione giornata (dose totale divisa tra questi)</label>
-        <div style="display: flex; gap: 8px;">
-          <label>Mattina <input type="number" id="drugMorning" value="0" min="0" style="width: 60px;"></label>
-          <label>Pomeriggio <input type="number" id="drugAfternoon" value="0" min="0" style="width: 60px;"></label>
-          <label>Sera <input type="number" id="drugEvening" value="0" min="0" style="width: 60px;"></label>
-        </div>
+    </div>
+
+    <div class="form-group">
+      <label>Giorni della settimana</label>
+      <div class="days-row" id="fDays">
+        <label class="day-chip" data-d="1"><input type="checkbox" value="1">Lun</label>
+        <label class="day-chip" data-d="2"><input type="checkbox" value="2">Mar</label>
+        <label class="day-chip" data-d="3"><input type="checkbox" value="3">Mer</label>
+        <label class="day-chip" data-d="4"><input type="checkbox" value="4">Gio</label>
+        <label class="day-chip" data-d="5"><input type="checkbox" value="5">Ven</label>
+        <label class="day-chip" data-d="6"><input type="checkbox" value="6">Sab</label>
+        <label class="day-chip" data-d="0"><input type="checkbox" value="0">Dom</label>
       </div>
-      <div style="display: flex; gap: 8px; justify-content: flex-end;">
-        <button type="button" class="btn btn-secondary" onclick="closeDrugModal()">Annulla</button>
-        <button type="submit" class="btn btn-primary">Conferma</button>
+    </div>
+
+    <div class="form-group">
+      <label>Suddivisione giornata (dose totale divisa tra questi)</label>
+      <div class="split-row">
+        <div class="split-item"><label>Mattina</label><input type="number" id="fMorn" value="0" min="0"></div>
+        <div class="split-item"><label>Pomeriggio</label><input type="number" id="fAft" value="0" min="0"></div>
+        <div class="split-item"><label>Sera</label><input type="number" id="fEve" value="0" min="0"></div>
       </div>
-    </form>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModalDrug()">Annulla</button>
+      <button class="btn btn-primary" onclick="saveDrug()">Conferma</button>
+    </div>
   </div>
 </div>
 
-<!-- Firebase SDK -->
+<!-- ==================== MODAL RIMUOVI FARMACO ==================== -->
+<div class="modal-overlay" id="modalRemove">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h2>🗑️ Rimuovi Farmaco</h2>
+      <button class="modal-close" onclick="closeModalRemove()">×</button>
+    </div>
+    <p style="font-size:14px;margin-bottom:12px;">Seleziona un farmaco per eliminare tutte le sue voci dal piano.</p>
+    <div class="form-group">
+      <select id="removeSelect" style="width:100%;padding:10px;border:1px solid var(--border);border-radius:6px;font-size:14px;">
+        <option value="">— Seleziona —</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModalRemove()">Chiudi</button>
+      <button class="btn btn-danger" onclick="confirmRemoveDrug()">Elimina</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== FIREBASE + LOGICA ==================== -->
 <script type="module">
+// === FIREBASE IMPORT ===
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, enableIndexedDbPersistence,
-  collection, doc, setDoc, deleteDoc, onSnapshot, getDocs, updateDoc, query, orderBy
+  collection, doc, setDoc, deleteDoc, getDoc, getDocs,
+  onSnapshot, updateDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -252,507 +411,396 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// Abilita persistenza offline
-enableIndexedDbPersistence(db).catch((err) => {
-  console.warn('Persistenza offline non disponibile:', err.code);
-});
+// Persistenza offline
+try { await enableIndexedDbPersistence(db); } catch(e) { console.warn('Persistence:', e.code); }
 
-// Stato globale
-let APP_CONFIG = null;
+// === STATE ===
+let APP_CONFIG = { startDate: '', duration: { value: 30, unit: 'days' } };
 let APP_DRUGS = [];
 let APP_DOSES = [];
 let editingDrugId = null;
+let currentWeekOffset = 0;
 
-// ---------- SYNC STATUS ----------
-function setSyncStatus(type, msg) {
-  const el = document.getElementById('syncStatus');
-  el.className = 'sync-status sync-' + type;
-  el.textContent = msg;
+// === HELPERS ===
+const $ = id => document.getElementById(id);
+const COL = {
+  cfg: doc(db, 'sharedTherapy', 'config'),
+  drugs: collection(db, 'sharedTherapy', 'drugs'),
+  doses: collection(db, 'sharedTherapy', 'doses')
+};
+
+function setSync(type, msg) {
+  const b = $('syncBadge');
+  b.className = 'sync-badge sync-' + type;
+  b.textContent = msg;
 }
 
-// ---------- LISTENERS REAL-TIME ----------
-// Config globale
-onSnapshot(doc(db, 'sharedTherapy', 'config'), (snap) => {
+function uid() {
+  if (crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random()*16|0;
+    return (c==='x'?r:(r&0x3|0x8)).toString(16);
+  });
+}
+
+const DAY_NAMES = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+const MONTH_NAMES = ['Gen','Feb','Mar','Apr','Mag','Giu','Lug','Ago','Set','Ott','Nov','Dic'];
+
+function fmtDate(d) {
+  return `${d.getDate()} ${MONTH_NAMES[d.getMonth()]}`;
+}
+
+function dateStr(d) {
+  return d.toISOString().split('T')[0];
+}
+
+function parseDose(s) {
+  if (!s) return { v: 0, u: '' };
+  const m = String(s).match(/^([\d.,]+)\s*(.*)$/);
+  return m ? { v: parseFloat(m[1].replace(',','.')), u: m[2].trim() } : { v: 0, u: String(s) };
+}
+
+// === REALTIME LISTENERS ===
+onSnapshot(COL.cfg, snap => {
   if (snap.exists()) {
     APP_CONFIG = snap.data();
-    document.getElementById('globalStartDate').value = APP_CONFIG.startDate || '';
-    document.getElementById('globalDuration').value = APP_CONFIG.duration?.value || 30;
-    document.getElementById('globalDurationUnit').value = APP_CONFIG.duration?.unit || 'days';
-    setSyncStatus('ok', '🟢 Connesso');
-    renderAll();
-  } else {
-    setSyncStatus('ok', '🟢 Pronto');
+    $('cfgStartDate').value = APP_CONFIG.startDate || '';
+    $('cfgDuration').value = APP_CONFIG.duration?.value || 30;
+    $('cfgDurationUnit').value = APP_CONFIG.duration?.unit || 'days';
   }
-}, (err) => {
-  console.error('Errore config:', err);
-  setSyncStatus('err', '⚠️ Offline');
-});
+  setSync('ok', '🟢 Connesso');
+  renderAll();
+}, () => setSync('err', '⚠️ Offline'));
 
-// Farmaci
-onSnapshot(collection(db, 'sharedTherapy', 'drugs'), (snap) => {
+onSnapshot(COL.drugs, snap => {
   APP_DRUGS = [];
   snap.forEach(d => APP_DRUGS.push({ id: d.id, ...d.data() }));
   renderAll();
-}, (err) => {
-  console.error('Errore drugs:', err);
 });
 
-// Storico dosi
-onSnapshot(collection(db, 'sharedTherapy', 'doses'), (snap) => {
+onSnapshot(COL.doses, snap => {
   APP_DOSES = [];
   snap.forEach(d => APP_DOSES.push({ id: d.id, ...d.data() }));
   renderAll();
-}, (err) => {
-  console.error('Errore doses:', err);
 });
 
-// ---------- SAVE OPERATIONS ----------
-window.saveGlobalConfig = async () => {
-  const config = {
-    startDate: document.getElementById('globalStartDate').value,
-    duration: {
-      value: +document.getElementById('globalDuration').value,
-      unit: document.getElementById('globalDurationUnit').value
-    },
-    updatedAt: Date.now()
-  };
-  await setDoc(doc(db, 'sharedTherapy', 'config'), config);
-  alert('✅ Configurazione salvata');
-};
-
-window.openDrugModal = (drugId = null) => {
-  editingDrugId = drugId;
-  const modal = document.getElementById('drugModal');
-  const form = document.getElementById('drugForm');
-  form.reset();
-  
-  if (drugId) {
-    const drug = APP_DRUGS.find(d => d.id === drugId);
-    if (drug) {
-      document.getElementById('modalTitle').textContent = 'Modifica Farmaco';
-      document.getElementById('drugName').value = drug.name || '';
-      document.getElementById('drugStartDate').value = drug.startDate || '';
-      document.getElementById('drugEndDate').value = drug.endDate || '';
-      document.getElementById('drugDose').value = drug.initialDose || '';
-      document.getElementById('drugRampOp').value = drug.rampOperation || 'none';
-      document.getElementById('drugRampDelta').value = drug.rampDelta || '';
-      document.getElementById('drugRampLimit').value = drug.rampLimit || '';
-      document.getElementById('drugRampFreq').value = drug.rampFrequencyDays || 7;
-      document.getElementById('drugDuration').value = drug.durationIfNoEnd?.value || 30;
-      document.getElementById('drugDurationUnit').value = drug.durationIfNoEnd?.unit || 'days';
-      document.getElementById('drugMorning').value = drug.daySplits?.morning || 0;
-      document.getElementById('drugAfternoon').value = drug.daySplits?.afternoon || 0;
-      document.getElementById('drugEvening').value = drug.daySplits?.evening || 0;
-      
-      // Set week days
-      document.querySelectorAll('.weekDay').forEach(cb => {
-        cb.checked = (drug.weekDays || []).includes(+cb.value);
-      });
-    }
-  } else {
-    document.getElementById('modalTitle').textContent = 'Nuovo Farmaco';
-    document.getElementById('drugStartDate').value = new Date().toISOString().split('T')[0];
-  }
-  
-  modal.classList.add('active');
-};
-
-window.closeDrugModal = () => {
-  document.getElementById('drugModal').classList.remove('active');
-  editingDrugId = null;
-};
-
-window.saveDrug = async (e) => {
-  e.preventDefault();
-  
-  const weekDays = [];
-  document.querySelectorAll('.weekDay:checked').forEach(cb => weekDays.push(+cb.value));
-  
-  const drug = {
-    name: document.getElementById('drugName').value,
-    startDate: document.getElementById('drugStartDate').value,
-    endDate: document.getElementById('drugEndDate').value,
-    initialDose: document.getElementById('drugDose').value,
-    rampOperation: document.getElementById('drugRampOp').value,
-    rampDelta: document.getElementById('drugRampDelta').value,
-    rampLimit: document.getElementById('drugRampLimit').value,
-    rampFrequencyDays: +document.getElementById('drugRampFreq').value,
-    durationIfNoEnd: {
-      value: +document.getElementById('drugDuration').value,
-      unit: document.getElementById('drugDurationUnit').value
-    },
-    weekDays: weekDays,
-    daySplits: {
-      morning: +document.getElementById('drugMorning').value,
-      afternoon: +document.getElementById('drugAfternoon').value,
-      evening: +document.getElementById('drugEvening').value
-    },
-    updatedAt: Date.now()
-  };
-  
-  const drugId = editingDrugId || crypto.randomUUID();
-  await setDoc(doc(db, 'sharedTherapy', 'drugs', drugId), drug);
-  closeDrugModal();
-};
-
-window.deleteDrug = async (drugId) => {
-  if (!confirm('Eliminare questo farmaco e tutto il suo storico?')) return;
-  await deleteDoc(doc(db, 'sharedTherapy', 'drugs', drugId));
-  
-  // Elimina dosi collegate
-  const snap = await getDocs(collection(db, 'sharedTherapy', 'doses'));
-  for (const d of snap.docs) {
-    if (d.data().drugId === drugId) {
-      await deleteDoc(d.ref);
-    }
-  }
-};
-
-window.markDoseTaken = async (doseId) => {
-  await updateDoc(doc(db, 'sharedTherapy', 'doses', doseId), {
-    status: 'taken',
-    takenAt: Date.now()
-  });
-};
-
-window.markDosePending = async (doseId) => {
-  await updateDoc(doc(db, 'sharedTherapy', 'doses', doseId), {
-    status: 'pending',
-    takenAt: null
-  });
-};
-
-window.exportJSON = () => {
-  const data = {
-    config: APP_CONFIG,
-    drugs: APP_DRUGS,
-    doses: APP_DOSES,
-    exportedAt: new Date().toISOString()
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `therapy-backup-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-};
-
-window.importJSON = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  
-  const text = await file.text();
-  const data = JSON.parse(text);
-  
-  if (!confirm('Sovrascrivere tutti i dati attuali?')) return;
-  
-  if (data.config) {
-    await setDoc(doc(db, 'sharedTherapy', 'config'), data.config);
-  }
-  
-  if (data.drugs) {
-    for (const drug of data.drugs) {
-      await setDoc(doc(db, 'sharedTherapy', 'drugs', drug.id || crypto.randomUUID()), drug);
-    }
-  }
-  
-  if (data.doses) {
-    for (const dose of data.doses) {
-      await setDoc(doc(db, 'sharedTherapy', 'doses', dose.id || crypto.randomUUID()), dose);
-    }
-  }
-  
-  alert('✅ Import completato');
-  e.target.value = '';
-};
-
-window.resetData = async () => {
-  if (!confirm('⚠️ Eliminare TUTTI i dati? Questa azione è irreversibile!')) return;
-  if (!confirm('Sei davvero sicuro?')) return;
-  
-  // Elimina config
-  await deleteDoc(doc(db, 'sharedTherapy', 'config'));
-  
-  // Elimina farmaci
-  const drugsSnap = await getDocs(collection(db, 'sharedTherapy', 'drugs'));
-  for (const d of drugsSnap.docs) {
-    await deleteDoc(d.ref);
-  }
-  
-  // Elimina dosi
-  const dosesSnap = await getDocs(collection(db, 'sharedTherapy', 'doses'));
-  for (const d of dosesSnap.docs) {
-    await deleteDoc(d.ref);
-  }
-  
-  alert('✅ Dati eliminati');
-};
-
-// ---------- LOGICA CALCOLO DOSI ----------
-function parseDose(doseStr) {
-  if (!doseStr) return { value: 0, unit: '' };
-  const match = doseStr.match(/^([\d.,]+)\s*(.*)$/);
-  if (!match) return { value: 0, unit: doseStr };
-  return {
-    value: parseFloat(match[1].replace(',', '.')),
-    unit: match[2].trim()
-  };
-}
-
-function calculateCurrentDose(drug, date) {
-  if (drug.rampOperation === 'none' || !drug.rampDelta) {
-    return drug.initialDose;
-  }
-  
-  const startDate = new Date(drug.startDate);
-  const currentDate = new Date(date);
-  const daysDiff = Math.floor((currentDate - startDate) / (1000 * 60 * 60 * 24));
-  const rampCycles = Math.floor(daysDiff / drug.rampFrequencyDays);
-  
-  if (rampCycles === 0) return drug.initialDose;
-  
-  const initial = parseDose(drug.initialDose);
+// === CALCOLO DOSE CON RAMPA ===
+function calcDose(drug, date) {
+  if (drug.rampOperation === 'none' || !drug.rampDelta) return drug.initialDose;
+  const start = new Date(drug.startDate);
+  const cur = new Date(date);
+  const days = Math.floor((cur - start) / 864e5);
+  if (days < 0) return drug.initialDose;
+  const cycles = Math.floor(days / (drug.rampFrequencyDays || 7));
+  if (cycles === 0) return drug.initialDose;
+  const ini = parseDose(drug.initialDose);
   const delta = parseDose(drug.rampDelta);
-  
-  let currentValue = initial.value;
-  for (let i = 0; i < rampCycles; i++) {
-    if (drug.rampOperation === '+') {
-      currentValue += delta.value;
-    } else if (drug.rampOperation === '-') {
-      currentValue -= delta.value;
-    }
-    
-    // Check limit
+  let val = ini.v;
+  for (let i = 0; i < cycles; i++) {
+    val += (drug.rampOperation === '+' ? delta.v : -delta.v);
     if (drug.rampLimit) {
-      const limit = parseDose(drug.rampLimit);
-      if (drug.rampOperation === '+' && currentValue >= limit.value) {
-        currentValue = limit.value;
-        break;
-      }
-      if (drug.rampOperation === '-' && currentValue <= limit.value) {
-        currentValue = limit.value;
-        break;
-      }
+      const lim = parseDose(drug.rampLimit).v;
+      if (drug.rampOperation === '+' && val >= lim) { val = lim; break; }
+      if (drug.rampOperation === '-' && val <= lim) { val = lim; break; }
     }
   }
-  
-  return `${currentValue}${initial.unit}`;
+  return `${val}${ini.u}`;
 }
 
-function generateDosesForDate(drug, date) {
-  const dateObj = new Date(date);
-  const dayOfWeek = dateObj.getDay();
-  
-  // Check if drug is active on this date
-  const startDate = new Date(drug.startDate);
-  const endDate = drug.endDate ? new Date(drug.endDate) : null;
-  
-  if (dateObj < startDate) return [];
-  if (endDate && dateObj > endDate) return [];
-  
-  // Check if drug is active on this day of week
-  if (!drug.weekDays.includes(dayOfWeek)) return [];
-  
-  const totalDose = calculateCurrentDose(drug, date);
-  const total = parseDose(totalDose);
-  const splits = drug.daySplits;
-  const totalSplits = splits.morning + splits.afternoon + splits.evening;
-  
-  if (totalSplits === 0) return [];
-  
-  const doses = [];
+// === GENERA DOSI PER UN GIORNO ===
+function dosesForDay(drug, date) {
+  const d = new Date(date + 'T00:00:00');
+  const dow = d.getDay();
+  const start = new Date(drug.startDate + 'T00:00:00');
+  if (d < start) return [];
+  if (drug.endDate && d > new Date(drug.endDate + 'T00:00:00')) return [];
+  if (!(drug.weekDays || []).includes(dow)) return [];
+  const total = parseDose(calcDose(drug, date));
+  const sp = drug.daySplits || { morning:0, afternoon:0, evening:0 };
+  const tot = sp.morning + sp.afternoon + sp.evening;
+  if (tot === 0) return [];
   const times = [
-    { key: 'morning', hour: 8, count: splits.morning },
-    { key: 'afternoon', hour: 14, count: splits.afternoon },
-    { key: 'evening', hour: 20, count: splits.evening }
+    { k:'morning', h:8, n:sp.morning },
+    { k:'afternoon', h:14, n:sp.afternoon },
+    { k:'evening', h:20, n:sp.evening }
   ];
-  
-  for (const time of times) {
-    if (time.count > 0) {
-      const doseValue = (total.value * time.count) / totalSplits;
-      const scheduledAt = new Date(dateObj);
-      scheduledAt.setHours(time.hour, 0, 0, 0);
-      
-      doses.push({
-        drugId: drug.id,
-        drugName: drug.name,
-        scheduledAt: scheduledAt.getTime(),
-        doseAmount: `${doseValue}${total.unit}`,
-        status: 'pending'
-      });
-    }
-  }
-  
-  return doses;
+  return times.filter(t => t.n > 0).map(t => {
+    const dt = new Date(date + 'T00:00:00');
+    dt.setHours(t.h, 0, 0, 0);
+    return {
+      drugId: drug.id,
+      drugName: drug.name,
+      scheduledAt: dt.getTime(),
+      doseAmount: `${(total.v * t.n / tot).toFixed(1).replace(/\.0$/,'')}${total.u}`,
+      timeLabel: `${String(t.h).padStart(2,'0')}:00`,
+      split: t.k
+    };
+  });
 }
 
+// === SETTIMANA CORRENTE ===
 function getWeekDates() {
   const today = new Date();
-  const dayOfWeek = today.getDay();
-  const monday = new Date(today);
-  monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
-  
+  const d = new Date(today);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7) + currentWeekOffset * 7);
   const dates = [];
   for (let i = 0; i < 7; i++) {
-    const d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    dates.push(d.toISOString().split('T')[0]);
+    const x = new Date(d);
+    x.setDate(d.getDate() + i);
+    dates.push(dateStr(x));
   }
   return dates;
 }
 
+function isToday(ds) { return ds === dateStr(new Date()); }
+
+// === RENDER ===
 function renderAll() {
-  renderDrugs();
-  renderToday();
+  renderDrugList();
+  renderWeek();
   renderHistory();
 }
 
-function renderDrugs() {
-  const list = document.getElementById('drugList');
-  if (APP_DRUGS.length === 0) {
-    list.innerHTML = '<div class="empty-state">Nessun farmaco configurato</div>';
-    return;
-  }
-  
-  list.innerHTML = APP_DRUGS.map(drug => `
-    <div class="drug-item">
-      <div>
-        <strong>${drug.name}</strong><br>
-        <small>${drug.initialDose} • ${drug.weekDays.map(d => ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'][d]).join(', ')}</small>
+function renderDrugList() {
+  const el = $('drugList');
+  if (!APP_DRUGS.length) { el.innerHTML = '<div class="empty">Nessun farmaco configurato</div>'; return; }
+  el.innerHTML = APP_DRUGS.map(d => {
+    const days = (d.weekDays||[]).map(w => `<span>${DAY_NAMES[w]}</span>`).join('');
+    const ramp = d.rampOperation !== 'none' ? ` • Rampa ${d.rampOperation}${d.rampDelta} ogni ${d.rampFrequencyDays}g` : '';
+    return `<div class="drug-item">
+      <div class="drug-info">
+        <div class="name">${d.name}</div>
+        <div class="details">${d.initialDose} • ${d.startDate}${d.endDate ? ' → '+d.endDate : ''}${ramp}</div>
+        <div class="days">${days}</div>
       </div>
-      <div>
-        <button class="btn btn-secondary" onclick="openDrugModal('${drug.id}')">✏️ Modifica</button>
-        <button class="btn btn-danger" onclick="deleteDrug('${drug.id}')">🗑️ Elimina</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-function renderToday() {
-  const today = new Date().toISOString().split('T')[0];
-  const allDoses = [];
-  
-  for (const drug of APP_DRUGS) {
-    const doses = generateDosesForDate(drug, today);
-    allDoses.push(...doses);
-  }
-  
-  // Match with existing doses in DB
-  const todayDoses = allDoses.map(dose => {
-    const existing = APP_DOSES.find(d => 
-      d.drugId === dose.drugId && 
-      d.scheduledAt === dose.scheduledAt
-    );
-    return existing || dose;
-  });
-  
-  // Auto-create missing doses in DB
-  for (const dose of todayDoses) {
-    if (!dose.id) {
-      const doseId = crypto.randomUUID();
-      setDoc(doc(db, 'sharedTherapy', 'doses', doseId), {
-        ...dose,
-        id: doseId,
-        createdAt: Date.now()
-      });
-    }
-  }
-  
-  const taken = todayDoses.filter(d => d.status === 'taken').length;
-  const total = todayDoses.length;
-  const pending = total - taken;
-  
-  document.getElementById('takenToday').textContent = `${taken} / ${total}`;
-  document.getElementById('pendingToday').textContent = `${pending} voci`;
-  
-  const container = document.getElementById('todayDoses');
-  if (todayDoses.length === 0) {
-    container.innerHTML = '<div class="empty-state">Nessuna dose prevista oggi</div>';
-  } else {
-    container.innerHTML = todayDoses
-      .sort((a, b) => a.scheduledAt - b.scheduledAt)
-      .map(dose => {
-        const time = new Date(dose.scheduledAt).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-        const isTaken = dose.status === 'taken';
-        return `
-          <div class="dose-item ${isTaken ? 'taken' : ''}">
-            <div class="dose-info">
-              <div class="dose-name">${dose.drugName}</div>
-              <div class="dose-time">${time} • ${dose.doseAmount}</div>
-            </div>
-            <button class="btn ${isTaken ? 'btn-secondary' : 'btn-success'}" 
-                    onclick="${isTaken ? `markDosePending('${dose.id}')` : `markDoseTaken('${dose.id}')`}">
-              ${isTaken ? '↩️ Annulla' : '✓ Presa'}
-            </button>
-          </div>
-        `;
-      }).join('');
-  }
-  
-  // Week stats
-  const weekDates = getWeekDates();
-  let weekTaken = 0;
-  let weekTotal = 0;
-  
-  for (const date of weekDates) {
-    for (const drug of APP_DRUGS) {
-      const doses = generateDosesForDate(drug, date);
-      weekTotal += doses.length;
-      
-      for (const dose of doses) {
-        const existing = APP_DOSES.find(d => 
-          d.drugId === dose.drugId && 
-          d.scheduledAt === dose.scheduledAt &&
-          d.status === 'taken'
-        );
-        if (existing) weekTaken++;
-      }
-    }
-  }
-  
-  document.getElementById('takenWeek').textContent = `${weekTaken} / ${weekTotal}`;
-  const completion = weekTotal > 0 ? Math.round((weekTaken / weekTotal) * 100) : 0;
-  document.getElementById('weekCompletion').textContent = `${completion}%`;
-  document.getElementById('progressFill').style.width = `${completion}%`;
-}
-
-function renderHistory() {
-  const list = document.getElementById('historyList');
-  const takenDoses = APP_DOSES
-    .filter(d => d.status === 'taken')
-    .sort((a, b) => b.takenAt - a.takenAt);
-  
-  if (takenDoses.length === 0) {
-    list.innerHTML = '<div class="empty-state">Nessuna somministrazione registrata</div>';
-    return;
-  }
-  
-  list.innerHTML = takenDoses.map(dose => {
-    const date = new Date(dose.takenAt).toLocaleString('it-IT');
-    return `
-      <div class="dose-item taken">
-        <div class="dose-info">
-          <div class="dose-name">${dose.drugName}</div>
-          <div class="dose-time">${date} • ${dose.doseAmount}</div>
-        </div>
-      </div>
-    `;
+      <button class="btn btn-outline btn-sm" onclick="editDrug('${d.id}')">✏️</button>
+    </div>`;
   }).join('');
 }
 
-// ---------- TABS ----------
-document.querySelectorAll('.tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-    tab.classList.add('active');
-    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+function renderWeek() {
+  const dates = getWeekDates();
+  const today = dateStr(new Date());
+  $('weekLabel').textContent = `${fmtDate(new Date(dates[0]+'T00:00:00'))} — ${fmtDate(new Date(dates[6]+'T00:00:00'))}`;
+
+  // Genera tutte le dosi della settimana
+  let weekTotal = 0, weekTaken = 0;
+  let todayTotal = 0, todayTaken = 0;
+  let todayDosesHTML = [];
+
+  for (const ds of dates) {
+    for (const drug of APP_DRUGS) {
+      const doses = dosesForDay(drug, ds);
+      for (const dose of doses) {
+        weekTotal++;
+        const existing = APP_DOSES.find(x => x.drugId === dose.drugId && x.scheduledAt === dose.scheduledAt);
+        const taken = existing?.status === 'taken';
+        if (taken) weekTaken++;
+
+        if (isToday(ds)) {
+          todayTotal++;
+          if (taken) todayTaken++;
+          const doseId = existing?.id || null;
+          const splitLabel = {morning:'☀️ Mattina',afternoon:'🌤️ Pomeriggio',evening:'🌙 Sera'}[dose.split]||'';
+          todayDosesHTML.push(`<div class="dose-item ${taken?'taken':''}">
+            <div class="dose-left">
+              <div class="dose-name">${dose.drugName}</div>
+              <div class="dose-meta">${dose.timeLabel} • ${dose.doseAmount} • ${splitLabel}</div>
+            </div>
+            <div class="dose-actions">
+              ${taken
+                ? `<button class="btn btn-outline btn-sm" onclick="undoDose('${doseId}')">↩️</button>`
+                : `<button class="btn btn-success btn-sm" onclick="takeDose('${dose.drugId}',${dose.scheduledAt},'${dose.drugName}','${dose.doseAmount}')">✓ Presa</button>`
+              }
+            </div>
+          </div>`);
+        }
+      }
+    }
+  }
+
+  $('statTodayTaken').textContent = `${todayTaken} / ${todayTotal}`;
+  $('statTodaySub').textContent = todayTotal ? '' : 'Nessuna voce';
+  $('statWeekTaken').textContent = `${weekTaken} / ${weekTotal}`;
+  $('statWeekSub').textContent = weekTotal ? '' : 'Nessuna voce';
+  $('statPending').textContent = `${todayTotal - todayTaken} voci`;
+  const pct = weekTotal ? Math.round(weekTaken/weekTotal*100) : 0;
+  $('statCompletion').textContent = `${pct}%`;
+  $('progressFill').style.width = `${pct}%`;
+  $('todayDoses').innerHTML = todayDosesHTML.length ? todayDosesHTML.join('') : '<div class="empty">Nessuna dose prevista oggi</div>';
+}
+
+function renderHistory() {
+  const el = $('historyList');
+  const taken = APP_DOSES.filter(d => d.status === 'taken').sort((a,b) => (b.takenAt||0) - (a.takenAt||0));
+  if (!taken.length) { el.innerHTML = '<div class="empty">Nessuna somministrazione registrata</div>'; return; }
+
+  // Raggruppa per data
+  const groups = {};
+  taken.forEach(d => {
+    const key = d.takenAt ? new Date(d.takenAt).toLocaleDateString('it-IT',{weekday:'long',day:'numeric',month:'long',year:'numeric'}) : 'Sconosciuta';
+    (groups[key] = groups[key]||[]).push(d);
+  });
+
+  let html = '';
+  for (const [date, items] of Object.entries(groups)) {
+    html += `<div class="history-date">${date}</div>`;
+    items.forEach(d => {
+      const time = d.takenAt ? new Date(d.takenAt).toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'}) : '';
+      html += `<div class="dose-item taken" style="margin-bottom:4px;">
+        <div class="dose-left">
+          <div class="dose-name">${d.drugName||'?'}</div>
+          <div class="dose-meta">${time} • ${d.doseAmount||''}</div>
+        </div>
+      </div>`;
+    });
+  }
+  el.innerHTML = html;
+}
+
+// === ACTIONS ===
+window.switchTab = name => {
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const panels = ['week','drugs','history'];
+    b.classList.toggle('active', panels[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  $('panel-'+name).classList.add('active');
+};
+
+window.changeWeek = delta => {
+  currentWeekOffset += delta;
+  renderWeek();
+};
+
+window.saveGlobalConfig = async () => {
+  await setDoc(COL.cfg, {
+    startDate: $('cfgStartDate').value,
+    duration: { value: +$('cfgDuration').value, unit: $('cfgDurationUnit').value },
+    updatedAt: Date.now()
+  });
+};
+
+window.openAddDrug = () => {
+  editingDrugId = null;
+  $('modalDrugTitle').textContent = 'Nuovo Farmaco';
+  $('fName').value = ''; $('fStart').value = dateStr(new Date()); $('fEnd').value = '';
+  $('fDose').value = ''; $('fRampOp').value = 'none'; $('fRampDelta').value = '';
+  $('fRampLimit').value = ''; $('fRampFreq').value = 7; $('fDur').value = 30;
+  $('fDurUnit').value = 'days'; $('fMorn').value = 0; $('fAft').value = 0; $('fEve').value = 0;
+  document.querySelectorAll('.day-chip input').forEach(c => { c.checked = false; c.parentElement.classList.remove('checked'); });
+  $('modalDrug').classList.add('open');
+};
+
+window.editDrug = id => {
+  const d = APP_DRUGS.find(x => x.id === id);
+  if (!d) return;
+  editingDrugId = id;
+  $('modalDrugTitle').textContent = 'Modifica Farmaco';
+  $('fName').value = d.name||''; $('fStart').value = d.startDate||''; $('fEnd').value = d.endDate||'';
+  $('fDose').value = d.initialDose||''; $('fRampOp').value = d.rampOperation||'none';
+  $('fRampDelta').value = d.rampDelta||''; $('fRampLimit').value = d.rampLimit||'';
+  $('fRampFreq').value = d.rampFrequencyDays||7; $('fDur').value = d.durationIfNoEnd?.value||30;
+  $('fDurUnit').value = d.durationIfNoEnd?.unit||'days';
+  $('fMorn').value = d.daySplits?.morning||0; $('fAft').value = d.daySplits?.afternoon||0; $('fEve').value = d.daySplits?.evening||0;
+  document.querySelectorAll('.day-chip input').forEach(c => {
+    c.checked = (d.weekDays||[]).includes(+c.value);
+    c.parentElement.classList.toggle('checked', c.checked);
+  });
+  $('modalDrug').classList.add('open');
+};
+
+window.closeModalDrug = () => $('modalDrug').classList.remove('open');
+
+window.saveDrug = async () => {
+  const name = $('fName').value.trim();
+  if (!name) { alert('Inserisci il nome del farmaco'); return; }
+  const days = [];
+  document.querySelectorAll('.day-chip input:checked').forEach(c => days.push(+c.value));
+  const data = {
+    name,
+    startDate: $('fStart').value,
+    endDate: $('fEnd').value,
+    initialDose: $('fDose').value,
+    rampOperation: $('fRampOp').value,
+    rampDelta: $('fRampDelta').value,
+    rampLimit: $('fRampLimit').value,
+    rampFrequencyDays: +$('fRampFreq').value,
+    durationIfNoEnd: { value: +$('fDur').value, unit: $('fDurUnit').value },
+    weekDays: days,
+    daySplits: { morning: +$('fMorn').value, afternoon: +$('fAft').value, evening: +$('fEve').value },
+    updatedAt: Date.now()
+  };
+  await setDoc(doc(COL.drugs, editingDrugId || uid()), data);
+  closeModalDrug();
+};
+
+window.openRemoveDrug = () => {
+  const sel = $('removeSelect');
+  sel.innerHTML = '<option value="">— Seleziona —</option>' + APP_DRUGS.map(d => `<option value="${d.id}">${d.name}</option>`).join('');
+  $('modalRemove').classList.add('open');
+};
+window.closeModalRemove = () => $('modalRemove').classList.remove('open');
+
+window.confirmRemoveDrug = async () => {
+  const id = $('removeSelect').value;
+  if (!id) { alert('Seleziona un farmaco'); return; }
+  if (!confirm('Eliminare questo farmaco e tutte le sue dosi?')) return;
+  await deleteDoc(doc(COL.drugs, id));
+  const snap = await getDocs(COL.doses);
+  for (const d of snap.docs) { if (d.data().drugId === id) await deleteDoc(d.ref); }
+  closeModalRemove();
+};
+
+window.takeDose = async (drugId, scheduledAt, drugName, doseAmount) => {
+  const id = uid();
+  await setDoc(doc(COL.doses, id), {
+    id, drugId, drugName, scheduledAt, doseAmount,
+    status: 'taken', takenAt: Date.now(), createdAt: Date.now()
+  });
+};
+
+window.undoDose = async doseId => {
+  if (!doseId) return;
+  await deleteDoc(doc(COL.doses, doseId));
+};
+
+window.exportJSON = () => {
+  const data = { config: APP_CONFIG, drugs: APP_DRUGS, doses: APP_DOSES, exportedAt: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `therapy-backup-${dateStr(new Date())}.json`;
+  a.click();
+};
+
+window.importJSON = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const data = JSON.parse(await f.text());
+  if (!confirm('Sovrascrivere tutti i dati?')) return;
+  if (data.config) await setDoc(COL.cfg, data.config);
+  if (data.drugs) for (const d of data.drugs) await setDoc(doc(COL.drugs, d.id||uid()), d);
+  if (data.doses) for (const d of data.doses) await setDoc(doc(COL.doses, d.id||uid()), d);
+  alert('✅ Import completato');
+  e.target.value = '';
+};
+
+window.resetAll = async () => {
+  if (!confirm('⚠️ Eliminare TUTTI i dati? Irreversibile!')) return;
+  if (!confirm('Sei davvero sicuro?')) return;
+  await deleteDoc(COL.cfg);
+  for (const snap of [await getDocs(COL.drugs), await getDocs(COL.doses)])
+    for (const d of snap.docs) await deleteDoc(d.ref);
+};
+
+// Day chip toggle
+document.querySelectorAll('.day-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const cb = chip.querySelector('input');
+    cb.checked = !cb.checked;
+    chip.classList.toggle('checked', cb.checked);
   });
 });
-
-// Initial render
-setSyncStatus('off', '⏳ Connessione...');
 </script>
 
 </body>
