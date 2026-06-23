@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="apple-touch-icon" href="" />
+  <link rel="manifest" href="" />
   <title>Terapia - tracker cloud</title>
   <style>
     :root{
@@ -81,12 +85,12 @@
     .pillbtn{border:1px solid var(--line);border-radius:10px;padding:5px 8px;font-weight:850;background:linear-gradient(180deg,#fff,#f7faff);color:var(--ink);box-shadow:var(--shadow2);font-size:10px}
     .pillbtn.dark{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent}
     .pillbtn.red{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;border-color:transparent}
-    .med-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
-    .med-icon{width:80px;min-height:80px;border-radius:16px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:12px;box-shadow:var(--shadow2);transition:.2s ease;cursor:pointer;text-align:center;padding:6px 4px;border:1px solid transparent;line-height:1.2;word-break:break-word}
-    .med-icon .abbr{font-size:20px;line-height:1;margin-bottom:2px;font-weight:950}
-    .med-icon .dose-small{font-size:9px;opacity:.85;margin-top:1px}
-    .med-icon .count{background:rgba(255,255,255,.15);border-radius:10px;padding:0 6px;font-size:8px;margin-top:2px}
-    .med-icon .fullname{font-size:10px;font-weight:800;line-height:1.1;max-width:100%;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;margin-top:2px}
+    .med-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
+    .med-icon{width:80px;border-radius:16px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:11px;box-shadow:var(--shadow2);transition:.2s ease;cursor:pointer;text-align:center;padding:8px 4px;border:1px solid transparent;gap:2px}
+    .med-icon .abbr{font-size:28px;line-height:1;margin-bottom:2px}
+    .med-icon .dose-small{font-size:10px;opacity:.85}
+    .med-icon .med-name{font-size:10px;font-weight:850;line-height:1.2;max-width:70px;word-break:break-word;opacity:.95}
+    .med-icon .count{background:rgba(255,255,255,.2);border-radius:10px;padding:0 6px;font-size:9px;margin-top:2px}
     .med-icon:hover{transform:scale(1.04);box-shadow:0 8px 16px rgba(62,99,221,.25)}
     .hide{display:none!important}
     
@@ -183,9 +187,9 @@
       .shell{padding:8px;border-radius:20px}
       h1{font-size:20px}
       .tabs{padding:2px}.tab{padding:5px 8px;font-size:10px}
-      .med-icon{width:70px;min-height:70px;font-size:10px}
-      .med-icon .abbr{font-size:16px}
-      .med-icon .fullname{font-size:9px}
+      .med-icon{width:68px;padding:6px 2px}
+      .med-icon .abbr{font-size:22px}
+      .med-icon .med-name{font-size:9px}
       .days{gap:3px}.daychip{height:38px;border-radius:8px}.daychip .dd{font-size:14px}
       .card{padding:4px 8px;min-height:34px}.line1{font-size:13px}
       .grid2{grid-template-columns:1fr}
@@ -576,7 +580,7 @@
     if (selectedSlots.length === 0) { alert('Seleziona almeno un momento!'); return; }
 
     if (editingIndex !== null) {
-      // Modifica: aggiorna il farmaco esistente (solo campi base, non rampa)
+      // Modifica
       const med = state.meds[editingIndex];
       med.name = name;
       med.dose = doseInitStr;
@@ -588,7 +592,7 @@
       return;
     }
 
-    // Creazione nuovo farmaco (multi-slot)
+    // Creazione
     const doseVal = parseFloat(doseInitStr.replace(/[^0-9.]/g, '')) || 0;
     const doseUnit = doseInitStr.replace(/[0-9.]/g, '').trim();
 
@@ -754,12 +758,11 @@
       div.className = 'med-icon';
       div.style.background = `linear-gradient(135deg, ${bg}, ${bg}dd)`;
       const abbr = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || name.slice(0,2).toUpperCase();
-      // Nome per intero sotto l'icona
       div.innerHTML = `
         <div class="abbr">${abbr}</div>
+        <div class="med-name">${name}</div>
         <div class="dose-small">${first.dose}</div>
         <div class="count">${count} voci</div>
-        <div class="fullname">${name}</div>
       `;
       div.onclick = (e) => {
         e.stopPropagation();
@@ -787,6 +790,65 @@
   window.removeHistory = (key) => { delete state.taken[key]; save(); render(); };
   function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
   render();
+})();
+
+// Genera icona app per iPhone e manifest
+(function() {
+  function generateIcon(size) {
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    // Sfondo gradiente
+    const grad = ctx.createLinearGradient(0, 0, size, size);
+    grad.addColorStop(0, '#203a8f');
+    grad.addColorStop(1, '#3e63dd');
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
+    ctx.fill();
+    // Bordo leggero
+    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+    ctx.lineWidth = size/40;
+    ctx.stroke();
+    // Pillola bianca
+    const pillW = size*0.4, pillH = size*0.55;
+    const x = (size - pillW)/2, y = (size - pillH)/2;
+    ctx.shadowColor = 'rgba(0,0,0,0.2)';
+    ctx.shadowBlur = size/12;
+    ctx.fillStyle = '#ffffff';
+    ctx.beginPath();
+    ctx.ellipse(x + pillW/2, y + pillH/2, pillW/2, pillH/2, 0, 0, Math.PI*2);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+    // Spunta verde
+    ctx.fillStyle = '#16a34a';
+    ctx.font = `bold ${size*0.35}px sans-serif`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('✓', size/2, size/2 + size*0.04);
+    // Piccola croce rossa sulla pillola? No, lasciamo così.
+    return canvas.toDataURL('image/png');
+  }
+
+  const iconData = generateIcon(512);
+  // Imposta apple-touch-icon
+  const appleLink = document.querySelector('link[rel="apple-touch-icon"]');
+  if (appleLink) appleLink.href = iconData;
+  // Crea manifest
+  const manifest = {
+    name: "Terapia Tracker",
+    short_name: "Terapia",
+    start_url: ".",
+    display: "standalone",
+    icons: [
+      { src: iconData, sizes: "512x512", type: "image/png" }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], {type: 'application/json'});
+  const manifestUrl = URL.createObjectURL(blob);
+  const manifestLink = document.querySelector('link[rel="manifest"]');
+  if (manifestLink) manifestLink.href = manifestUrl;
 })();
 </script>
 
