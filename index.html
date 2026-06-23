@@ -3,10 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Terapia Cloud - tracker locale & sync</title>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <title>Terapia - tracker locale</title>
   <style>
     :root{
       --bg:#eef4ff;
@@ -99,15 +96,6 @@
     .daycheck.on{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff;box-shadow:0 8px 14px rgba(62,99,221,.18)}
     .hide{display:none!important}
     
-    /* Cloud Sync Status */
-    .sync-status {
-      display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 850;
-      padding: 6px 10px; border-radius: 10px; background: var(--soft); margin-top: 8px;
-    }
-    .sync-status.online { color: var(--green); }
-    .sync-status.offline { color: var(--red); }
-    .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
-
     /* Modal Stili */
     .modal {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -132,6 +120,7 @@
     .slot-check { flex: 1; border: 1px solid var(--line); border-radius: 10px; padding: 8px; font-size: 12px; font-weight: 850; text-align: center; }
     .slot-check.on { background: var(--navy2); color: #fff; border-color: transparent; }
 
+    /* Liste nel modal rimozione */
     .modal-list { display: grid; gap: 8px; margin-top: 10px; }
     .modal-list-item {
       display: flex; justify-content: space-between; align-items: center;
@@ -140,6 +129,7 @@
     }
     .modal-list-item button { color: var(--red); font-weight: 950; font-size: 12px; border: 1px solid var(--red); border-radius: 8px; padding: 4px 8px; background: #fff; }
 
+    /* Storico */
     .history-item {
       padding: 12px; border-bottom: 1px solid var(--line);
       display: flex; justify-content: space-between; align-items: center;
@@ -167,9 +157,8 @@
     <div class="shell">
       <section class="top">
         <div>
-          <h1>Terapia Cloud</h1>
+          <h1>Terapia</h1>
           <div class="sub" id="startText"></div>
-          <div id="syncStatus" class="sync-status offline"><div class="dot"></div><span>Cloud Disconnesso</span></div>
         </div>
         <div class="tabs" role="tablist">
           <button class="tab active" id="tabWeek">Settimana</button>
@@ -183,12 +172,12 @@
           <div class="sumcard">
             <div class="sumlabel">Prese oggi</div>
             <div class="sumvalue" id="takenToday">0 / 0</div>
-            <div class="sumsub" id="takenTodaySub">-</div>
+            <div class="sumsub" id="takenTodaySub">Nessuna voce</div>
           </div>
           <div class="sumcard">
             <div class="sumlabel">Totale settimana</div>
             <div class="sumvalue" id="takenWeek">0 / 0</div>
-            <div class="sumsub" id="takenWeekSub">-</div>
+            <div class="sumsub" id="takenWeekSub">Nessuna voce</div>
           </div>
         </div>
         <div class="weeknav">
@@ -217,7 +206,7 @@
       </section>
 
       <section id="medsPanel" class="panel">
-        <div class="warn">Configura Firebase per attivare la sincronizzazione multi-dispositivo.</div>
+        <div class="warn">App locale per promemoria. Non sostituisce medico o farmacista.</div>
         <div class="formtop">
           <div class="grid2">
             <div class="field">
@@ -251,107 +240,129 @@
       </section>
 
       <section id="historyPanel" class="panel">
-        <div class="warn">Database storico delle somministrazioni sincronizzate nel cloud.</div>
+        <div class="warn">Database storico delle somministrazioni registrate.</div>
         <div id="historyList" class="shell" style="padding:0; overflow:hidden; border-radius:20px;"></div>
       </section>
     </div>
   </main>
 
-  <!-- Modali (Nuovo, Rimozione) -->
-  <div id="medModal" class="modal"><div class="modal-content"><h2>Nuovo Farmaco</h2><div class="form-grid"><div class="field"><label>Nome farmaco</label><input type="text" id="mName" placeholder="es. Creatina"></div><div class="form-row"><div class="field"><label>Data Inizio</label><input type="date" id="mStartDate"></div><div class="field"><label>Data Fine (opzionale)</label><input type="date" id="mEndDate"></div></div><div class="form-row"><div class="field"><label>Dose Totale Iniziale (es. 1g)</label><input type="text" id="mDoseInit" placeholder="1g"></div><div class="field"><label>Operazione Rampa</label><select id="mOp"><option value="none">Nessuna (dose fissa)</option><option value="add">Aumenta (+)</option><option value="sub">Sottrai (-)</option></select></div></div><div id="rampFields" style="display:none; gap:15px; flex-direction:column;"><div class="form-row"><div class="field"><label>Variazione Totale (es. 20mcg)</label><input type="text" id="mStep" placeholder="20mcg"></div><div class="field"><label>Limite Totale (stop)</label><input type="text" id="mLimit" placeholder="es. 100mcg"></div></div><div class="field"><label>Frequenza variazione</label><div style="display:flex; align-items:center; gap:8px;">Ogni <input type="number" id="mFreq" value="1" style="width:60px"> giorni</div></div></div><div class="form-row"><div class="field"><label>Durata (se Data Fine vuota)</label><input type="number" id="mDur" value="30"></div><div class="field"><label>Unità</label><select id="mUnit"><option value="days">Giorni</option><option value="weeks">Settimane</option><option value="months">Mesi</option></select></div></div><div class="field"><label>Giorni della settimana</label><div class="daysedit" id="mDays"></div></div><div class="field"><label>Suddivisione giornata (dose totale divisa tra questi)</label><div class="slot-checks"><button class="slot-check on" data-slot="mattina">Mattina</button><button class="slot-check" data-slot="pomeriggio">Pomeriggio</button><button class="slot-check" data-slot="sera">Sera</button></div></div></div><div class="modal-footer"><button class="btn-cancel" onclick="closeModal()">Annulla</button><button class="btn-confirm" onclick="confirmMed()">Conferma</button></div></div></div>
-  <div id="removeModal" class="modal"><div class="modal-content"><h2>Rimuovi Farmaco</h2><p style="font-size:13px; color:var(--muted); font-weight:750; margin-bottom:15px;">Seleziona un farmaco per eliminare tutte le sue voci dal cloud.</p><div id="removeList" class="modal-list"></div><div class="modal-footer"><button class="btn-cancel" onclick="closeRemoveModal()">Chiudi</button></div></div></div>
+  <!-- Modal Nuovo Farmaco -->
+  <div id="medModal" class="modal">
+    <div class="modal-content">
+      <h2>Nuovo Farmaco</h2>
+      <div class="form-grid">
+        <div class="field">
+          <label>Nome farmaco</label>
+          <input type="text" id="mName" placeholder="es. Creatina">
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Data Inizio</label>
+            <input type="date" id="mStartDate">
+          </div>
+          <div class="field">
+            <label>Data Fine (opzionale)</label>
+            <input type="date" id="mEndDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Dose Totale Iniziale (es. 1g)</label>
+            <input type="text" id="mDoseInit" placeholder="1g">
+          </div>
+          <div class="field">
+            <label>Operazione Rampa</label>
+            <select id="mOp">
+              <option value="none">Nessuna (dose fissa)</option>
+              <option value="add">Aumenta (+)</option>
+              <option value="sub">Sottrai (-)</option>
+            </select>
+          </div>
+        </div>
+        <div id="rampFields" style="display:none; gap:15px; flex-direction:column;">
+          <div class="form-row">
+            <div class="field">
+              <label>Variazione Totale (es. 20mcg)</label>
+              <input type="text" id="mStep" placeholder="20mcg">
+            </div>
+            <div class="field">
+              <label>Limite Totale (stop)</label>
+              <input type="text" id="mLimit" placeholder="es. 100mcg">
+            </div>
+          </div>
+          <div class="field">
+            <label>Frequenza variazione</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              Ogni <input type="number" id="mFreq" value="1" style="width:60px"> giorni
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="field">
+            <label>Durata (se Data Fine vuota)</label>
+            <input type="number" id="mDur" value="30">
+          </div>
+          <div class="field">
+            <label>Unità</label>
+            <select id="mUnit">
+              <option value="days">Giorni</option>
+              <option value="weeks">Settimane</option>
+              <option value="months">Mesi</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label>Giorni della settimana</label>
+          <div class="daysedit" id="mDays"></div>
+        </div>
+        <div class="field">
+          <label>Suddivisione giornata (dose totale divisa tra questi)</label>
+          <div class="slot-checks">
+            <button class="slot-check on" data-slot="mattina">Mattina</button>
+            <button class="slot-check" data-slot="pomeriggio">Pomeriggio</button>
+            <button class="slot-check" data-slot="sera">Sera</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Annulla</button>
+        <button class="btn-confirm" onclick="confirmMed()">Conferma</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Rimuovi Farmaco -->
+  <div id="removeModal" class="modal">
+    <div class="modal-content">
+      <h2>Rimuovi Farmaco</h2>
+      <p style="font-size:13px; color:var(--muted); font-weight:750; margin-bottom:15px;">Seleziona un farmaco per eliminare tutte le sue voci dal piano.</p>
+      <div id="removeList" class="modal-list"></div>
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeRemoveModal()">Chiudi</button>
+      </div>
+    </div>
+  </div>
 
 <script>
-/**
- * CONFIGURAZIONE FIREBASE - Nuovo progetto "promemoria-4203d"
- */
-const firebaseConfig = {
-  apiKey: "AIzaSyDSXymQ3y9woYgggq_7rerIpasQK4PMTQo",
-  authDomain: "promemoria-4203d.firebaseapp.com",
-  databaseURL: "https://promemoria-4203d-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "promemoria-4203d",
-  storageBucket: "promemoria-4203d.firebasestorage.app",
-  messagingSenderId: "243468925961",
-  appId: "1:243468925961:web:aa01c6c17822f9cb83ccd8"
-};
-
 (function(){
-  const STORE_LOCAL = 'therapy-tracker-backup';
+  const STORE='therapy-tracker-local-color-ramp-v1';
   const dayNames=['Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato','Domenica'];
   const dayShort=['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
   const slots=[['mattina','MATTINA'],['pomeriggio','POMERIGGIO'],['sera','SERA']];
 
-  let state = {
-    startDate: isoLocal(new Date()),
+  const defaultState=()=>({
+    startDate:isoLocal(new Date()),
     cycleDuration: 30,
     cycleUnit: 'days',
-    selectedDate: isoLocal(new Date()),
-    meds: [],
-    taken: {},
-    activeTab: 'week'
-  };
+    selectedDate:isoLocal(new Date()),
+    meds:[],
+    taken:{},
+    activeTab:'week'
+  });
 
-  // Inizializzazione Firebase
-  let db = null;
-  const syncStatus = document.getElementById('syncStatus');
-
-  if(firebaseConfig.apiKey && firebaseConfig.apiKey !== "AIzaSyDSXymQ3y9woYgggq_7rerIpasQK4PMTQo") {
-    try {
-      firebase.initializeApp(firebaseConfig);
-      db = firebase.database();
-      
-      // Controllo connessione reale al server Google
-      const connectedRef = db.ref(".info/connected");
-      connectedRef.on("value", (snap) => {
-        if (snap.val() === true) {
-          syncStatus.className = 'sync-status online';
-          syncStatus.querySelector('span').textContent = 'Cloud Connesso';
-          // Se siamo connessi, nascondiamo l'avviso giallo di configurazione
-          const warn = document.querySelector('#medsPanel .warn');
-          if(warn) warn.style.display = 'none';
-        } else {
-          syncStatus.className = 'sync-status offline';
-          syncStatus.querySelector('span').textContent = 'Cloud Disconnesso (Riconnessione...)';
-        }
-      });
-
-      // Ascolta i cambiamenti nel Cloud
-      db.ref('therapyData').on('value', (snapshot) => {
-        const data = snapshot.val();
-        if(data) {
-          state = {...state, ...data};
-          render();
-        }
-      }, (error) => {
-        console.error("Errore Firebase:", error);
-        syncStatus.className = 'sync-status offline';
-        syncStatus.querySelector('span').textContent = 'Errore Permessi Database';
-      });
-    } catch(e) {
-      console.error("Errore Init Firebase:", e);
-    }
+  function med(name,dose,time,opts={}){
+    return {id:uid(),name,dose,time,days:opts.days||[0,1,2,3,4,5,6],startDate:opts.startDate||'',endDate:opts.endDate||'',note:opts.note||'',enabled:opts.enabled!==false};
   }
-
-  // Caricamento iniziale da LocalStorage (per velocità e offline)
-  const raw = localStorage.getItem(STORE_LOCAL);
-  if(raw) state = JSON.parse(raw);
-  state.selectedDate = isoLocal(new Date());
-
-  function save(){
-    if(db) {
-      db.ref('therapyData').set({
-        startDate: state.startDate,
-        cycleDuration: state.cycleDuration,
-        cycleUnit: state.cycleUnit,
-        meds: state.meds,
-        taken: state.taken
-      });
-    }
-    localStorage.setItem(STORE_LOCAL, JSON.stringify(state));
-  }
-
-  // Utility
-  function med(name,dose,time,opts={}){ return {id:uid(),name,dose,time,days:opts.days||[0,1,2,3,4,5,6],startDate:opts.startDate||'',endDate:opts.endDate||'',note:opts.note||'',enabled:opts.enabled!==false}; }
   function uid(){return 'm'+Math.random().toString(36).slice(2,9)+Date.now().toString(36).slice(-4)}
   function pad(n){return String(n).padStart(2,'0')}
   function isoLocal(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
@@ -363,6 +374,14 @@ const firebaseConfig = {
   function diffDays(a,b){return Math.round((parseIso(a)-parseIso(b))/86400000)}
   function mondayOf(iso){const d=parseIso(iso);const day=(d.getDay()+6)%7;return addDays(d,-day)}
   function dayIndex(iso){return (parseIso(iso).getDay()+6)%7}
+  
+  function load(){
+    try{const raw=localStorage.getItem(STORE); if(raw){const s=JSON.parse(raw); if(s&&Array.isArray(s.meds)) return s;}}catch(e){}
+    return defaultState();
+  }
+  let state=load();
+  state.selectedDate = isoLocal(new Date());
+  function save(){localStorage.setItem(STORE,JSON.stringify(state));}
 
   const $=id=>document.getElementById(id);
   const startText=$('startText'),weekRange=$('weekRange'),daysEl=$('days'),dayTitle=$('dayTitle'),cycleText=$('cycleText'),sections=$('sections');
@@ -375,24 +394,37 @@ const firebaseConfig = {
   tabMeds.onclick=()=>setTab('meds');
   tabHistory.onclick=()=>setTab('history');
   
-  $('prevWeek').onclick=()=>{state.selectedDate=isoLocal(addDays(parseIso(state.selectedDate),-7));render();};
-  $('nextWeek').onclick=()=>{state.selectedDate=isoLocal(addDays(parseIso(state.selectedDate),7));render();};
+  $('prevWeek').onclick=()=>{state.selectedDate=isoLocal(addDays(parseIso(state.selectedDate),-7));save();render();};
+  $('nextWeek').onclick=()=>{state.selectedDate=isoLocal(addDays(parseIso(state.selectedDate),7));save();render();};
   $('startDate').onchange=e=>{state.startDate=e.target.value||state.startDate; save(); render();};
   $('cycleDuration').onchange=e=>{state.cycleDuration=parseInt(e.target.value)||30; save(); render();};
   $('cycleUnit').onchange=e=>{state.cycleUnit=e.target.value; save(); render();};
-
-  // Modale Aggiunta
+  
+  // Modal Nuovo Farmaco
   const mDaysContainer = $('mDays');
   let selectedModalDays = [0,1,2,3,4,5,6];
   dayShort.forEach((dn, i) => {
-    const b = document.createElement('button'); b.className = 'daycheck on'; b.textContent = dn;
-    b.onclick = () => { b.classList.toggle('on'); const idx = selectedModalDays.indexOf(i); if(idx > -1) selectedModalDays.splice(idx, 1); else selectedModalDays.push(i); selectedModalDays.sort(); };
+    const b = document.createElement('button');
+    b.className = 'daycheck on'; b.textContent = dn;
+    b.onclick = () => {
+      b.classList.toggle('on');
+      const idx = selectedModalDays.indexOf(i);
+      if(idx > -1) selectedModalDays.splice(idx, 1);
+      else selectedModalDays.push(i);
+      selectedModalDays.sort();
+    };
     mDaysContainer.appendChild(b);
   });
-  $('addMedBtn').onclick=()=>{ $('mStartDate').value = state.selectedDate; $('medModal').classList.add('active'); };
+
+  $('addMedBtn').onclick=()=>{
+    $('mStartDate').value = state.selectedDate;
+    $('medModal').classList.add('active');
+  };
   $('mOp').onchange=e=>$('rampFields').style.display = (e.target.value === 'none' ? 'none' : 'flex');
   window.closeModal = () => $('medModal').classList.remove('active');
-  document.querySelectorAll('.slot-checks .slot-check').forEach(btn => { btn.onclick = () => btn.classList.toggle('on'); });
+  document.querySelectorAll('.slot-checks .slot-check').forEach(btn => {
+    btn.onclick = () => btn.classList.toggle('on');
+  });
 
   window.confirmMed = () => {
     const name = $('mName').value || 'Farmaco';
@@ -403,37 +435,60 @@ const firebaseConfig = {
     const duration = parseInt($('mDur').value) || 30;
     const unit = $('mUnit').value;
     const selectedSlots = Array.from(document.querySelectorAll('.slot-checks .slot-check.on')).map(b => b.dataset.slot);
+
     if (selectedSlots.length === 0) { alert('Seleziona almeno un momento!'); return; }
+
     let totalDays;
     if(endIsoManual) totalDays = diffDays(endIsoManual, startIso) + 1;
-    else { if(unit === 'weeks') totalDays = duration * 7; else if(unit === 'months') totalDays = duration * 30; else totalDays = duration; }
+    else {
+      if(unit === 'weeks') totalDays = duration * 7;
+      else if(unit === 'months') totalDays = duration * 30;
+      else totalDays = duration;
+    }
+
     const doseVal = parseFloat(doseInitStr.replace(/[^0-9.]/g, '')) || 0;
     const doseUnit = doseInitStr.replace(/[0-9.]/g, '').trim();
+
     if(op === 'none'){
       const perSlotDose = (doseVal / selectedSlots.length).toFixed(2);
-      selectedSlots.forEach(slot => { state.meds.push(med(name, `${perSlotDose}${doseUnit}`, slot, { startDate: startIso, endDate: addDaysIso(startIso, totalDays - 1), days: [...selectedModalDays] })); });
+      selectedSlots.forEach(slot => {
+        state.meds.push(med(name, `${perSlotDose}${doseUnit}`, slot, {
+          startDate: startIso, endDate: addDaysIso(startIso, totalDays - 1),
+          days: [...selectedModalDays]
+        }));
+      });
     } else {
       const stepValTotal = parseFloat(($('mStep').value || '0').replace(/[^0-9.]/g, '')) || 0;
       const limitValTotal = $('mLimit').value !== '' ? parseFloat($('mLimit').value.replace(/[^0-9.]/g, '')) : null;
       const freq = parseInt($('mFreq').value) || 1;
+
       for (let d = 0; d < totalDays; d++) {
         const currentIso = addDaysIso(startIso, d);
         if(!selectedModalDays.includes(dayIndex(currentIso))) continue;
         const increments = Math.floor(d / freq);
         let dailyTotal = op === 'add' ? doseVal + (increments * stepValTotal) : doseVal - (increments * stepValTotal);
-        if (limitValTotal !== null) { if (op === 'add' && dailyTotal > limitValTotal) dailyTotal = limitValTotal; if (op === 'sub' && dailyTotal < limitValTotal) dailyTotal = limitValTotal; }
+        if (limitValTotal !== null) {
+          if (op === 'add' && dailyTotal > limitValTotal) dailyTotal = limitValTotal;
+          if (op === 'sub' && dailyTotal < limitValTotal) dailyTotal = limitValTotal;
+        }
         const perSlotDose = (dailyTotal / selectedSlots.length).toFixed(2);
-        selectedSlots.forEach(slot => { state.meds.push(med(name, `${perSlotDose}${doseUnit}`, slot, { startDate: currentIso, endDate: currentIso, note: `Rampa Giorno ${d+1} (Tot: ${dailyTotal.toFixed(2)}${doseUnit})`, days: [dayIndex(currentIso)] })); });
+        selectedSlots.forEach(slot => {
+          state.meds.push(med(name, `${perSlotDose}${doseUnit}`, slot, {
+            startDate: currentIso, endDate: currentIso,
+            note: `Rampa Giorno ${d+1} (Tot: ${dailyTotal.toFixed(2)}${doseUnit})`,
+            days: [dayIndex(currentIso)]
+          }));
+        });
       }
     }
     save(); render(); closeModal();
   };
 
-  // Rimozione
+  // Modal Rimozione
   $('removeMedBtn').onclick=()=>{
     const list = $('removeList'); list.innerHTML = '';
     const uniqueMeds = [...new Set(state.meds.map(m => m.name))].sort();
-    if(uniqueMeds.length === 0) list.innerHTML = '<div class="empty">Nessun farmaco presente.</div>';
+    if(uniqueMeds.length === 0){ list.innerHTML = '<div class="empty">Nessun farmaco presente.</div>'; }
     uniqueMeds.forEach(name => {
       const item = document.createElement('div'); item.className = 'modal-list-item';
       item.innerHTML = `<span>${name}</span> <button onclick="removeMedByName('${name.replace(/'/g, "\\'")}')">RIMUOVI TUTTI</button>`;
@@ -442,15 +497,25 @@ const firebaseConfig = {
     $('removeModal').classList.add('active');
   };
   window.closeRemoveModal = () => $('removeModal').classList.remove('active');
-  window.removeMedByName = (name) => { if(confirm(`Rimuovere tutte le voci per "${name}"?`)){ state.meds = state.meds.filter(m => m.name.toLowerCase() !== name.toLowerCase()); save(); render(); closeRemoveModal(); } };
+  window.removeMedByName = (name) => {
+    if(confirm(`Rimuovere tutte le voci per "${name}"?`)){
+      state.meds = state.meds.filter(m => m.name.toLowerCase() !== name.toLowerCase());
+      save(); render(); closeRemoveModal();
+    }
+  };
 
-  $('resetBtn').onclick=()=>{ if(confirm('Resettare tutto?')){ state.meds=[]; state.taken={}; save(); render(); } };
+  $('resetBtn').onclick=()=>{ if(confirm('Resettare tutto?')){state=defaultState(); save(); render();} };
   $('exportBtn').onclick=()=>{const box=$('jsonBox'),wrap=$('jsonBoxWrap');wrap.classList.remove('hide');box.value=JSON.stringify(state,null,2);box.focus();box.select();};
-  $('importBtn').onclick=()=>{const wrap=$('jsonBoxWrap'),box=$('jsonBox'); if(wrap.classList.contains('hide')){wrap.classList.remove('hide');return;} try{const d=JSON.parse(box.value); state.startDate=d.startDate; state.cycleDuration=d.cycleDuration; state.cycleUnit=d.cycleUnit; state.meds=d.meds; state.taken=d.taken; save(); render(); alert('Import OK');}catch(e){alert('Errore JSON');}};
+  $('importBtn').onclick=()=>{const wrap=$('jsonBoxWrap'),box=$('jsonBox'); if(wrap.classList.contains('hide')){wrap.classList.remove('hide');return;} try{state=JSON.parse(box.value); save(); render(); alert('Import OK');}catch(e){alert('Errore JSON');}};
 
-  function setTab(t){state.activeTab=t;render();}
+  function setTab(t){state.activeTab=t;save();render();}
   function takenKey(date,id){return date+'|'+id}
-  function isDue(m,date){ if(!m.enabled) return false; if(m.startDate && date<m.startDate) return false; if(m.endDate && date>m.endDate) return false; return (m.days||[]).includes(dayIndex(date)); }
+  function isDue(m,date){
+    if(!m.enabled) return false;
+    if(m.startDate && date<m.startDate) return false;
+    if(m.endDate && date>m.endDate) return false;
+    return (m.days||[]).includes(dayIndex(date));
+  }
 
   function render(){
     const endCycle = addDaysIso(state.startDate, (state.cycleUnit === 'weeks' ? state.cycleDuration * 7 : state.cycleDuration) - 1);
@@ -476,9 +541,10 @@ const firebaseConfig = {
     daysEl.innerHTML='';
     for(let i=0;i<7;i++){
       const d=addDays(mon,i), iso=isoLocal(d);
-      const b=document.createElement('button'); b.className='daychip'+(iso===state.selectedDate?' active':'')+(iso===todayIso?' today':'');
+      const b=document.createElement('button');
+      b.className='daychip'+(iso===state.selectedDate?' active':'')+(iso===todayIso?' today':'');
       b.innerHTML=`<span class="dn">${dayShort[i]}</span><span class="dd">${d.getDate()}</span>`;
-      b.onclick=()=>{state.selectedDate=iso;renderWeek();};
+      b.onclick=()=>{state.selectedDate=iso;save();renderWeek();};
       daysEl.appendChild(b);
     }
     dayTitle.innerHTML=`${dayNames[dayIndex(state.selectedDate)]} <span>${fmtFull(parseIso(state.selectedDate))}</span>`;
@@ -490,7 +556,8 @@ const firebaseConfig = {
     slots.forEach(([slot,label])=>{
       const due=state.meds.filter(m=>m.time===slot && isDue(m,state.selectedDate));
       if(slot==='pomeriggio' && due.length===0) return;
-      const wrap=document.createElement('section');wrap.className='section'; wrap.innerHTML=`<h3>${label}</h3>`;
+      const wrap=document.createElement('section');wrap.className='section';
+      wrap.innerHTML=`<h3>${label}</h3>`;
       if(!due.length) wrap.innerHTML+='<div class="empty">Nessun farmaco.</div>';
       due.forEach(m=>wrap.appendChild(card(m)));
       sections.appendChild(wrap);
@@ -507,6 +574,8 @@ const firebaseConfig = {
     const pWeek = weekDueCount?Math.round(weekTakenCount/weekDueCount*100):0;
     takenToday.textContent=`${todayTakenCount} / ${todayDue.length}`;
     takenWeek.textContent=`${weekTakenCount} / ${weekDueCount}`;
+    takenTodaySub.textContent=todayDue.length?`${pToday}% oggi`:'-';
+    takenWeekSub.textContent=weekDueCount?`${pWeek}% settimana`:'-';
     dueToday.textContent=`${todayDue.length} voci`;
     weekPercent.textContent=`${pWeek}%`;
     progressToday.style.width=`${pToday}%`;
@@ -526,7 +595,7 @@ const firebaseConfig = {
   function renderMeds(){
     const box=$('medEditor'); box.innerHTML='';
     state.meds.forEach((m,idx)=>{
-      const div=document.createElement('div');div.className='mededit';
+      const div=document.createElement('div');div.className='mededit';div.draggable=true;div.dataset.idx=idx;
       div.innerHTML=`
         <div class="medhead"><span class="handle">☰</span><div class="medtitle"></div><button class="mini" data-act="up">↑</button><button class="mini" data-act="down">↓</button><button class="mini" data-act="del">Elimina</button></div>
         <div class="grid2">
@@ -548,8 +617,8 @@ const firebaseConfig = {
         b.onclick=()=>{const set=new Set(m.days||[]); set.has(i)?set.delete(i):set.add(i); m.days=[...set].sort(); save(); renderMeds(); renderWeek();};
         de.appendChild(b);
       });
-      div.querySelector('[data-act="up"]').onclick=()=>{if(idx>0){[state.meds[idx],state.meds[idx-1]]=[state.meds[idx-1],state.meds[idx]];save();renderMeds();}};
-      div.querySelector('[data-act="down"]').onclick=()=>{if(idx<state.meds.length-1){[state.meds[idx],state.meds[idx+1]]=[state.meds[idx+1],state.meds[idx]];save();renderMeds();}};
+      div.querySelector('[data-act="up"]').onclick=()=>move(idx,-1);
+      div.querySelector('[data-act="down"]').onclick=()=>move(idx,1);
       div.querySelector('[data-act="del"]').onclick=()=>{if(confirm('Eliminare voce?')){state.meds.splice(idx,1);save();render();}};
       box.appendChild(div);
     });
@@ -571,6 +640,7 @@ const firebaseConfig = {
   }
 
   window.removeHistory = (key) => { delete state.taken[key]; save(); render(); };
+  function move(i,delta){const j=i+delta;if(j<0||j>=state.meds.length)return;[state.meds[i],state.meds[j]]=[state.meds[j],state.meds[i]];save();render();}
   function esc(s){return String(s||'').replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
   render();
 })();
