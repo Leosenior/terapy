@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="apple-touch-icon" href="" />
@@ -23,180 +23,507 @@
       --red:#ef4444;
       --shadow:0 8px 20px rgba(31,55,110,.10);
       --shadow2:0 4px 10px rgba(31,55,110,.06);
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --safe-left: env(safe-area-inset-left, 0px);
+      --safe-right: env(safe-area-inset-right, 0px);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;background:linear-gradient(180deg,#eef4ff 0%,#f7f9ff 28%,#ffffff 100%);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-    body{min-height:100vh}
+    html,body{
+      margin:0;
+      padding:0;
+      background:linear-gradient(180deg,#eef4ff 0%,#f7f9ff 28%,#ffffff 100%);
+      color:var(--ink);
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+      height:100%;
+      min-height:100vh;
+      overflow:hidden;
+    }
+    body{
+      display:flex;
+      flex-direction:column;
+      padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+      /* per evitare che il contenuto venga tagliato */
+      box-sizing:border-box;
+    }
     button,input,select,textarea{font:inherit}
     button{cursor:pointer;border:0;background:transparent;color:inherit}
-    .app{max-width:500px;margin:0 auto;padding:10px 8px 20px}
-    .shell{background:rgba(255,255,255,.82);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.7);border-radius:24px;box-shadow:var(--shadow);padding:10px}
-    .top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px;padding:2px 0 0}
-    h1{font-size:24px;line-height:1;margin:0 0 2px;font-weight:950;letter-spacing:-.05em}
-    .sub{color:var(--muted);font-weight:800;font-size:12px;display:flex;flex-wrap:wrap;align-items:center;gap:6px}
-    .prese-oggi{background:var(--navy2);color:#fff;padding:1px 10px;border-radius:12px;font-weight:900;font-size:11px;white-space:nowrap;display:inline-block}
-    .sync-badge{display:inline-block;padding:2px 8px;border-radius:10px;font-size:9px;font-weight:900;margin-left:4px;vertical-align:middle;letter-spacing:.03em;white-space:nowrap}
+    .app{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      max-width:500px;
+      margin:0 auto;
+      padding:8px 6px 0;
+      width:100%;
+      height:100%;
+      overflow:hidden;
+    }
+    .shell{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      background:rgba(255,255,255,.82);
+      backdrop-filter:blur(8px);
+      border:1px solid rgba(255,255,255,.7);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      padding:10px 10px 8px;
+      overflow:hidden;
+    }
+    .top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:6px;
+      margin-bottom:6px;
+      padding:2px 0 0;
+      flex-shrink:0;
+    }
+    h1{
+      font-size:22px;
+      line-height:1;
+      margin:0 0 1px;
+      font-weight:950;
+      letter-spacing:-.05em;
+    }
+    .sub{
+      color:var(--muted);
+      font-weight:800;
+      font-size:11px;
+      display:flex;
+      flex-wrap:wrap;
+      align-items:center;
+      gap:4px;
+    }
+    .prese-oggi{
+      background:var(--navy2);
+      color:#fff;
+      padding:0 8px;
+      border-radius:10px;
+      font-weight:900;
+      font-size:10px;
+      white-space:nowrap;
+      display:inline-block;
+    }
+    .sync-badge{
+      display:inline-block;
+      padding:1px 6px;
+      border-radius:8px;
+      font-size:8px;
+      font-weight:900;
+      margin-left:3px;
+      vertical-align:middle;
+      letter-spacing:.02em;
+      white-space:nowrap;
+    }
     .sync-badge.ok{background:#dcfce7;color:#166534;border:1px solid #86efac}
     .sync-badge.off{background:#fef3c7;color:#854d0e;border:1px solid #fcd34d}
     .sync-badge.err{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5}
     .sync-badge.syncing{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd}
-    .tabs{display:flex;gap:3px;padding:3px;border-radius:14px;background:linear-gradient(180deg,#f9fbff,#edf2ff);border:1px solid var(--line);box-shadow:var(--shadow2);overflow-x:auto}
-    .tab{padding:6px 10px;border-radius:10px;color:var(--muted);font-weight:900;font-size:11px;white-space:nowrap;transition:.15s ease}
-    .tab.active{background:linear-gradient(135deg,var(--navy),var(--navy2));color:white;box-shadow:0 6px 12px rgba(62,99,221,.25)}
-    .weeknav{display:grid;grid-template-columns:32px 1fr 32px;align-items:center;gap:6px;margin-bottom:8px}
-    .square{height:32px;border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:900;background:linear-gradient(180deg,#fff,#f2f6ff);box-shadow:var(--shadow2);transition:.15s ease}
-    .range{text-align:center;font-size:13px;font-weight:950;letter-spacing:-.02em;cursor:pointer;padding:2px 0;border-radius:8px;transition:background .15s}
-    .range:hover{background:var(--soft)}
-    .range small{font-size:11px;color:var(--navy2);font-weight:900;margin-left:3px}
-    .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:10px}
-    .daychip{height:44px;border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(180deg,#fff,#f5f8ff);color:#57627c;font-weight:900;box-shadow:var(--shadow2);transition:.15s ease}
-    .daychip .dn{font-size:9px;margin-bottom:1px}
-    .daychip .dd{font-size:16px;line-height:1;color:var(--ink);letter-spacing:-.05em}
-    .daychip.active{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#d9e4ff;transform:translateY(-1px);box-shadow:0 8px 14px rgba(62,99,221,.25)}
-    .daychip.active .dd{color:white}
-    .daychip.today:not(.active){border-color:#a6c0ff;background:linear-gradient(180deg,#ffffff,#eef4ff)}
-    .daytitle{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;padding:0}
-    .daytitle h2{font-size:18px;line-height:1.05;margin:0;font-weight:950;letter-spacing:-.04em}
-    .daytitle h2 span{display:block;color:var(--muted);font-size:13px;font-weight:850;letter-spacing:-.02em;margin-top:1px}
-    .cycle{color:var(--navy2);font-weight:900;font-size:11px;white-space:nowrap;background:#edf3ff;border:1px solid #d7e3ff;border-radius:10px;padding:4px 8px}
-    .section{margin:0 0 10px}
-    .section h3{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:950;margin:0 0 5px;padding-left:2px}
-    .empty{border:1px dashed var(--line);border-radius:12px;padding:10px;color:var(--muted);font-weight:800;background:var(--soft);font-size:12px}
-    .card{display:flex;align-items:center;gap:8px;min-height:42px;border:1px solid var(--line);border-radius:12px;background:linear-gradient(180deg,#ffffff,#f9fbff);padding:6px 10px;margin:0 0 4px;box-shadow:var(--shadow2);transition:.15s ease}
-    .card.taken{background:linear-gradient(180deg,#f1fbf4,#ecf9f0);border-color:#b6e3c5}
-    .card.taken .name,.card.taken .dose{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#59996f;color:#557162}
-    .card.taken .note{color:#64806f}
-    .check{width:22px;height:22px;border-radius:8px;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex:0 0 auto;background:#fff;color:white;font-size:14px;font-weight:900;transition:.15s ease}
-    .taken .check{background:linear-gradient(135deg,var(--green),#22c55e);border-color:transparent;box-shadow:0 4px 8px rgba(34,197,94,.2)}
-    .txt{min-width:0;flex:1}
-    .line1{display:flex;flex-wrap:wrap;gap:4px;align-items:baseline;font-size:15px;line-height:1.1;font-weight:950;letter-spacing:-.03em}
-    .dose{color:var(--navy2);font-weight:850}
-    .note{margin-top:2px;color:var(--muted);font-size:10px;font-weight:850;line-height:1.2}
-    .warn{background:linear-gradient(180deg,#fff7e8,#fff2cc);border:1px solid #f4dd97;color:#765300;border-radius:12px;padding:8px 10px;font-weight:800;line-height:1.3;margin:0 0 10px;font-size:11px}
-    .panel{display:none}
-    .panel.active{display:block}
-    .formtop{display:grid;gap:8px;margin-bottom:10px}
-    .field{display:grid;gap:4px}
-    label{font-weight:850;color:var(--muted);font-size:11px;letter-spacing:.02em}
-    input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:6px 8px;background:#fff;color:var(--ink);font-weight:750;outline:none;box-shadow:inset 0 1px 2px rgba(0,0,0,.02);font-size:12px}
-    input:focus,select:focus,textarea:focus{border-color:#95b4ff;box-shadow:0 0 0 3px rgba(62,99,221,.10)}
-    textarea{min-height:80px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:10px;font-weight:600}
-    .toolbar{display:flex;flex-wrap:wrap;gap:5px;margin:8px 0 10px}
-    .pillbtn{border:1px solid var(--line);border-radius:10px;padding:5px 8px;font-weight:850;background:linear-gradient(180deg,#fff,#f7faff);color:var(--ink);box-shadow:var(--shadow2);font-size:10px}
-    .pillbtn.dark{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent}
-    .pillbtn.red{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;border-color:transparent}
-    .med-grid{display:flex;flex-wrap:wrap;gap:10px;margin-top:4px}
-    .med-icon{width:80px;border-radius:16px;background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;font-size:11px;box-shadow:var(--shadow2);transition:.2s ease;cursor:pointer;text-align:center;padding:8px 4px;border:1px solid transparent;gap:2px}
-    .med-icon .abbr{font-size:28px;line-height:1;margin-bottom:2px}
-    .med-icon .dose-small{font-size:10px;opacity:.85}
-    .med-icon .med-name{font-size:10px;font-weight:850;line-height:1.2;max-width:70px;word-break:break-word;opacity:.95}
-    .med-icon .count{background:rgba(255,255,255,.2);border-radius:10px;padding:0 6px;font-size:9px;margin-top:2px}
-    .med-icon:hover{transform:scale(1.04);box-shadow:0 8px 16px rgba(62,99,221,.25)}
-    .hide{display:none!important}
-    
-    .modal {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.35); backdrop-filter: blur(3px);
-      display: none; align-items: center; justify-content: center; z-index: 1000;
-      padding: 14px;
-    }
-    .modal.active { display: flex; }
-    .modal-content {
-      background: #fff; border-radius: 18px; padding: 18px;
-      max-width: 460px; width: 100%; box-shadow: var(--shadow);
-      max-height: 90vh; overflow-y: auto;
-    }
-    .modal-content h2 { margin: 0 0 12px; font-size: 18px; font-weight: 900; letter-spacing: -0.04em; }
-    .modal-footer { display: flex; gap: 6px; margin-top: 14px; }
-    .modal-footer button { flex: 1; padding: 8px; border-radius: 10px; font-weight: 850; font-size:12px; }
-    .btn-cancel { background: var(--soft); color: var(--muted); }
-    .btn-confirm { background: var(--navy); color: #fff; }
-    .form-grid { display: grid; gap: 10px; }
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-    .slot-checks { display: flex; gap: 6px; margin-top: 3px; }
-    .slot-check { flex: 1; border: 1px solid var(--line); border-radius: 8px; padding: 5px; font-size: 10px; font-weight: 850; text-align: center; background:#fff; }
-    .slot-check.on { background: var(--navy2); color: #fff; border-color: transparent; }
 
-    .modal-list { display: grid; gap: 5px; margin-top: 6px; }
-    .modal-list-item {
-      display: flex; justify-content: space-between; align-items: center;
-      padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px;
-      background: var(--soft); font-weight: 850; font-size:12px;
+    .tabs{
+      display:flex;
+      gap:3px;
+      padding:3px;
+      border-radius:14px;
+      background:linear-gradient(180deg,#f9fbff,#edf2ff);
+      border:1px solid var(--line);
+      box-shadow:var(--shadow2);
+      flex-shrink:0;
     }
-    .modal-list-item button { color: var(--red); font-weight: 950; font-size: 10px; border: 1px solid var(--red); border-radius: 6px; padding: 2px 6px; background: #fff; }
+    .tab{
+      padding:5px 9px;
+      border-radius:10px;
+      color:var(--muted);
+      font-weight:900;
+      font-size:10px;
+      white-space:nowrap;
+      transition:.15s ease;
+    }
+    .tab.active{
+      background:linear-gradient(135deg,var(--navy),var(--navy2));
+      color:white;
+      box-shadow:0 4px 10px rgba(62,99,221,.25);
+    }
 
-    .history-item {
-      padding: 8px 10px; border-bottom: 1px solid var(--line);
-      display: flex; justify-content: space-between; align-items: center;
+    .panel-container{
+      flex:1;
+      overflow-y:auto;
+      margin-top:6px;
+      padding-bottom:4px;
+      -webkit-overflow-scrolling:touch;
     }
-    .history-item:last-child { border: 0; }
-    .history-date { font-weight: 900; font-size: 12px; color: var(--navy); }
-    .history-details { font-size: 11px; color: var(--muted); font-weight: 750; }
+    .panel{display:none;height:100%;}
+    .panel.active{display:block;}
 
-    .date-popup {
-      display: none;
-      position: absolute;
-      background: white;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 10px;
-      box-shadow: var(--shadow);
-      z-index: 500;
-      width: 220px;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      margin-top: 4px;
+    .weeknav{
+      display:grid;
+      grid-template-columns:30px 1fr 30px;
+      align-items:center;
+      gap:5px;
+      margin-bottom:6px;
     }
-    .date-popup.open { display: block; }
-    .date-popup input[type="date"] {
-      width: 100%;
-      padding: 6px;
-      border-radius: 8px;
-      border: 1px solid var(--line);
-      font-weight: 800;
-      font-size: 13px;
+    .square{
+      height:30px;
+      border:1px solid var(--line);
+      border-radius:9px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:16px;
+      font-weight:900;
+      background:linear-gradient(180deg,#fff,#f2f6ff);
+      box-shadow:var(--shadow2);
+      transition:.15s ease;
     }
-    .date-popup .actions {
-      display: flex;
-      gap: 5px;
-      margin-top: 6px;
+    .range{
+      text-align:center;
+      font-size:12px;
+      font-weight:950;
+      letter-spacing:-.02em;
+      cursor:pointer;
+      padding:1px 0;
+      border-radius:8px;
+      transition:background .15s;
     }
-    .date-popup .actions button {
-      flex: 1;
-      padding: 5px;
-      border-radius: 6px;
-      font-weight: 850;
-      font-size: 11px;
-      border: 1px solid var(--line);
-      background: var(--soft);
+    .range:hover{background:var(--soft);}
+    .range small{font-size:10px;color:var(--navy2);font-weight:900;margin-left:3px;}
+    .days{
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:3px;
+      margin-bottom:8px;
     }
-    .date-popup .actions button.primary {
-      background: var(--navy);
-      color: #fff;
-      border-color: transparent;
+    .daychip{
+      height:38px;
+      border:1px solid var(--line);
+      border-radius:8px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      background:linear-gradient(180deg,#fff,#f5f8ff);
+      color:#57627c;
+      font-weight:900;
+      box-shadow:var(--shadow2);
+      transition:.15s ease;
     }
-    .range-wrap { position: relative; display: inline-block; }
+    .daychip .dn{font-size:8px;margin-bottom:1px;}
+    .daychip .dd{font-size:14px;line-height:1;color:var(--ink);letter-spacing:-.05em;}
+    .daychip.active{
+      background:linear-gradient(135deg,var(--navy),var(--navy2));
+      border-color:transparent;
+      color:#d9e4ff;
+      transform:translateY(-1px);
+      box-shadow:0 6px 12px rgba(62,99,221,.25);
+    }
+    .daychip.active .dd{color:white;}
+    .daychip.today:not(.active){border-color:#a6c0ff;background:linear-gradient(180deg,#ffffff,#eef4ff);}
 
-    .daysedit{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:3px}
-    .daycheck{border:1px solid var(--line);border-radius:6px;text-align:center;padding:4px 0;font-size:10px;font-weight:900;color:var(--muted);user-select:none;background:#fff}
-    .daycheck.on{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff;box-shadow:0 4px 8px rgba(62,99,221,.15)}
+    .daytitle{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:6px;
+      margin-bottom:6px;
+      padding:0;
+    }
+    .daytitle h2{
+      font-size:16px;
+      line-height:1.05;
+      margin:0;
+      font-weight:950;
+      letter-spacing:-.04em;
+    }
+    .daytitle h2 span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      font-weight:850;
+      letter-spacing:-.02em;
+      margin-top:1px;
+    }
+    .cycle{
+      color:var(--navy2);
+      font-weight:900;
+      font-size:10px;
+      white-space:nowrap;
+      background:#edf3ff;
+      border:1px solid #d7e3ff;
+      border-radius:9px;
+      padding:3px 7px;
+    }
+    .section{margin:0 0 8px;}
+    .section h3{
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      font-weight:950;
+      margin:0 0 4px;
+      padding-left:2px;
+    }
+    .empty{
+      border:1px dashed var(--line);
+      border-radius:10px;
+      padding:8px;
+      color:var(--muted);
+      font-weight:800;
+      background:var(--soft);
+      font-size:11px;
+    }
+    .card{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      min-height:34px;
+      border:1px solid var(--line);
+      border-radius:10px;
+      background:linear-gradient(180deg,#ffffff,#f9fbff);
+      padding:4px 8px;
+      margin:0 0 3px;
+      box-shadow:var(--shadow2);
+      transition:.15s ease;
+    }
+    .card.taken{background:linear-gradient(180deg,#f1fbf4,#ecf9f0);border-color:#b6e3c5;}
+    .card.taken .name,.card.taken .dose{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#59996f;color:#557162;}
+    .card.taken .note{color:#64806f;}
+    .check{
+      width:20px;height:20px;
+      border-radius:7px;
+      border:2px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex:0 0 auto;
+      background:#fff;
+      color:white;
+      font-size:12px;
+      font-weight:900;
+      transition:.15s ease;
+    }
+    .taken .check{
+      background:linear-gradient(135deg,var(--green),#22c55e);
+      border-color:transparent;
+      box-shadow:0 3px 8px rgba(34,197,94,.2);
+    }
+    .txt{min-width:0;flex:1;}
+    .line1{
+      display:flex;
+      flex-wrap:wrap;
+      gap:3px;
+      align-items:baseline;
+      font-size:14px;
+      line-height:1.1;
+      font-weight:950;
+      letter-spacing:-.03em;
+    }
+    .dose{color:var(--navy2);font-weight:850;}
+    .note{margin-top:1px;color:var(--muted);font-size:9px;font-weight:850;line-height:1.2;}
+
+    .warn{
+      background:linear-gradient(180deg,#fff7e8,#fff2cc);
+      border:1px solid #f4dd97;
+      color:#765300;
+      border-radius:10px;
+      padding:6px 8px;
+      font-weight:800;
+      line-height:1.3;
+      margin:0 0 8px;
+      font-size:10px;
+    }
+
+    .formtop{display:grid;gap:6px;margin-bottom:8px;}
+    .field{display:grid;gap:3px;}
+    label{font-weight:850;color:var(--muted);font-size:10px;letter-spacing:.02em;}
+    input,select,textarea{
+      width:100%;
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:5px 7px;
+      background:#fff;
+      color:var(--ink);
+      font-weight:750;
+      outline:none;
+      box-shadow:inset 0 1px 2px rgba(0,0,0,.02);
+      font-size:11px;
+    }
+    input:focus,select:focus,textarea:focus{border-color:#95b4ff;box-shadow:0 0 0 3px rgba(62,99,221,.10);}
+    textarea{min-height:60px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:9px;font-weight:600;}
+    .toolbar{
+      display:flex;
+      flex-wrap:wrap;
+      gap:4px;
+      margin:6px 0 8px;
+    }
+    .pillbtn{
+      border:1px solid var(--line);
+      border-radius:8px;
+      padding:4px 7px;
+      font-weight:850;
+      background:linear-gradient(180deg,#fff,#f7faff);
+      color:var(--ink);
+      box-shadow:var(--shadow2);
+      font-size:9px;
+    }
+    .pillbtn.dark{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent;}
+    .pillbtn.red{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;border-color:transparent;}
+
+    .med-grid{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:4px;
+    }
+    .med-icon{
+      width:68px;
+      border-radius:14px;
+      background:linear-gradient(135deg,var(--navy),var(--navy2));
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:10px;
+      box-shadow:var(--shadow2);
+      transition:.2s ease;
+      cursor:pointer;
+      text-align:center;
+      padding:6px 2px;
+      border:1px solid transparent;
+      gap:1px;
+    }
+    .med-icon .abbr{font-size:24px;line-height:1;margin-bottom:1px;}
+    .med-icon .dose-small{font-size:9px;opacity:.85;}
+    .med-icon .med-name{font-size:9px;font-weight:850;line-height:1.1;max-width:64px;word-break:break-word;opacity:.95;}
+    .med-icon .count{background:rgba(255,255,255,.2);border-radius:8px;padding:0 5px;font-size:8px;margin-top:1px;}
+    .med-icon:hover{transform:scale(1.04);box-shadow:0 6px 14px rgba(62,99,221,.25);}
+    .hide{display:none!important;}
+
+    .modal{
+      position:fixed;
+      top:0;left:0;
+      width:100%;height:100%;
+      background:rgba(0,0,0,0.35);
+      backdrop-filter:blur(3px);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      z-index:1000;
+      padding:14px;
+    }
+    .modal.active{display:flex;}
+    .modal-content{
+      background:#fff;
+      border-radius:16px;
+      padding:16px;
+      max-width:440px;
+      width:100%;
+      box-shadow:var(--shadow);
+      max-height:90vh;
+      overflow-y:auto;
+    }
+    .modal-content h2{margin:0 0 10px;font-size:17px;font-weight:900;letter-spacing:-0.04em;}
+    .modal-footer{display:flex;gap:5px;margin-top:12px;}
+    .modal-footer button{flex:1;padding:7px;border-radius:9px;font-weight:850;font-size:11px;}
+    .btn-cancel{background:var(--soft);color:var(--muted);}
+    .btn-confirm{background:var(--navy);color:#fff;}
+    .form-grid{display:grid;gap:8px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+    .slot-checks{display:flex;gap:5px;margin-top:2px;}
+    .slot-check{flex:1;border:1px solid var(--line);border-radius:7px;padding:4px;font-size:9px;font-weight:850;text-align:center;background:#fff;}
+    .slot-check.on{background:var(--navy2);color:#fff;border-color:transparent;}
+
+    .modal-list{display:grid;gap:4px;margin-top:5px;}
+    .modal-list-item{
+      display:flex;justify-content:space-between;align-items:center;
+      padding:6px 10px;border:1px solid var(--line);border-radius:9px;
+      background:var(--soft);font-weight:850;font-size:11px;
+    }
+    .modal-list-item button{color:var(--red);font-weight:950;font-size:9px;border:1px solid var(--red);border-radius:5px;padding:1px 5px;background:#fff;}
+
+    .history-item{
+      padding:6px 8px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+    }
+    .history-item:last-child{border:0;}
+    .history-date{font-weight:900;font-size:11px;color:var(--navy);}
+    .history-details{font-size:10px;color:var(--muted);font-weight:750;}
+
+    .date-popup{
+      display:none;
+      position:absolute;
+      background:white;
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:8px;
+      box-shadow:var(--shadow);
+      z-index:500;
+      width:200px;
+      top:100%;
+      left:50%;
+      transform:translateX(-50%);
+      margin-top:3px;
+    }
+    .date-popup.open{display:block;}
+    .date-popup input[type="date"]{
+      width:100%;
+      padding:5px;
+      border-radius:7px;
+      border:1px solid var(--line);
+      font-weight:800;
+      font-size:12px;
+    }
+    .date-popup .actions{
+      display:flex;
+      gap:4px;
+      margin-top:5px;
+    }
+    .date-popup .actions button{
+      flex:1;
+      padding:4px;
+      border-radius:6px;
+      font-weight:850;
+      font-size:10px;
+      border:1px solid var(--line);
+      background:var(--soft);
+    }
+    .date-popup .actions button.primary{background:var(--navy);color:#fff;border-color:transparent;}
+    .range-wrap{position:relative;display:inline-block;}
+
+    .daysedit{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:2px;}
+    .daycheck{
+      border:1px solid var(--line);
+      border-radius:5px;
+      text-align:center;
+      padding:3px 0;
+      font-size:9px;
+      font-weight:900;
+      color:var(--muted);
+      user-select:none;
+      background:#fff;
+    }
+    .daycheck.on{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff;box-shadow:0 3px 6px rgba(62,99,221,.15);}
+
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 
     @media (max-width:420px){
-      .app{padding:8px 6px 16px}
-      .shell{padding:8px;border-radius:20px}
-      h1{font-size:20px}
-      .tabs{padding:2px}.tab{padding:5px 8px;font-size:10px}
-      .med-icon{width:68px;padding:6px 2px}
-      .med-icon .abbr{font-size:22px}
-      .med-icon .med-name{font-size:9px}
-      .days{gap:3px}.daychip{height:38px;border-radius:8px}.daychip .dd{font-size:14px}
-      .card{padding:4px 8px;min-height:34px}.line1{font-size:13px}
-      .grid2{grid-template-columns:1fr}
-      .cycle{font-size:10px;padding:3px 6px}
-      .daytitle h2{font-size:16px}
-      .daytitle h2 span{font-size:12px}
-      .date-popup{width:180px;left:0;transform:none}
+      .app{padding:4px 4px 0;}
+      .shell{padding:6px 6px 4px;border-radius:18px;}
+      h1{font-size:20px;}
+      .tabs{padding:2px;}.tab{padding:4px 7px;font-size:9px;}
+      .med-icon{width:60px;padding:4px 2px;}.med-icon .abbr{font-size:20px;}.med-icon .med-name{font-size:8px;}
+      .days{gap:2px;}.daychip{height:34px;border-radius:6px;}.daychip .dd{font-size:12px;}
+      .card{padding:3px 6px;min-height:30px;}.line1{font-size:12px;}
+      .grid2{grid-template-columns:1fr;}
+      .cycle{font-size:9px;padding:2px 5px;}
+      .daytitle h2{font-size:15px;}.daytitle h2 span{font-size:11px;}
+      .date-popup{width:160px;left:0;transform:none;}
     }
   </style>
 </head>
@@ -218,69 +545,71 @@
         </div>
       </section>
 
-      <section id="weekPanel" class="panel active">
-        <div class="weeknav">
-          <button class="square" id="prevWeek">←</button>
-          <div class="range-wrap">
-            <div class="range" id="weekRange">⬇️</div>
-            <div class="date-popup" id="datePopup">
-              <input type="date" id="datePicker" />
-              <div class="actions">
-                <button onclick="closeDatePopup()">Annulla</button>
-                <button class="primary" onclick="jumpToDate()">Vai</button>
+      <div class="panel-container">
+        <section id="weekPanel" class="panel active">
+          <div class="weeknav">
+            <button class="square" id="prevWeek">←</button>
+            <div class="range-wrap">
+              <div class="range" id="weekRange">⬇️</div>
+              <div class="date-popup" id="datePopup">
+                <input type="date" id="datePicker" />
+                <div class="actions">
+                  <button onclick="closeDatePopup()">Annulla</button>
+                  <button class="primary" onclick="jumpToDate()">Vai</button>
+                </div>
+              </div>
+            </div>
+            <button class="square" id="nextWeek">→</button>
+          </div>
+          <div class="days" id="days"></div>
+          <div class="daytitle">
+            <h2 id="dayTitle"></h2>
+            <div class="cycle" id="cycleText"></div>
+          </div>
+          <div id="sections"></div>
+        </section>
+
+        <section id="medsPanel" class="panel">
+          <div class="warn">App sincronizzata su tutti i dispositivi. Non sostituisce medico o farmacista.</div>
+          <div class="formtop">
+            <div class="grid2">
+              <div class="field">
+                <label>Data inizio ciclo globale</label>
+                <input type="date" id="startDate" />
+              </div>
+              <div class="field">
+                <label>Durata ciclo globale (opzionale)</label>
+                <div style="display:flex; gap:4px;">
+                  <input type="number" id="cycleDuration" value="" placeholder="∞" style="flex:1" />
+                  <select id="cycleUnit" style="flex:1">
+                    <option value="days">Giorni</option>
+                    <option value="weeks">Settimane</option>
+                    <option value="months">Mesi</option>
+                    <option value="years">Anni</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
-          <button class="square" id="nextWeek">→</button>
-        </div>
-        <div class="days" id="days"></div>
-        <div class="daytitle">
-          <h2 id="dayTitle"></h2>
-          <div class="cycle" id="cycleText"></div>
-        </div>
-        <div id="sections"></div>
-      </section>
-
-      <section id="medsPanel" class="panel">
-        <div class="warn">App sincronizzata su tutti i dispositivi. Non sostituisce medico o farmacista.</div>
-        <div class="formtop">
-          <div class="grid2">
-            <div class="field">
-              <label>Data inizio ciclo globale</label>
-              <input type="date" id="startDate" />
-            </div>
-            <div class="field">
-              <label>Durata ciclo globale (opzionale)</label>
-              <div style="display:flex; gap:5px;">
-                <input type="number" id="cycleDuration" value="" placeholder="∞" style="flex:1" />
-                <select id="cycleUnit" style="flex:1">
-                  <option value="days">Giorni</option>
-                  <option value="weeks">Settimane</option>
-                  <option value="months">Mesi</option>
-                  <option value="years">Anni</option>
-                </select>
-              </div>
-            </div>
+          <div class="toolbar">
+            <button class="pillbtn dark" id="addMedBtn">+ Aggiungi</button>
+            <button class="pillbtn red" id="removeMedBtn">Rimuovi</button>
+            <button class="pillbtn" id="exportBtn">Export JSON</button>
+            <button class="pillbtn" id="importBtn">Import JSON</button>
+            <button class="pillbtn" id="resetBtn">Reset</button>
           </div>
-        </div>
-        <div class="toolbar">
-          <button class="pillbtn dark" id="addMedBtn">+ Aggiungi</button>
-          <button class="pillbtn red" id="removeMedBtn">Rimuovi</button>
-          <button class="pillbtn" id="exportBtn">Export JSON</button>
-          <button class="pillbtn" id="importBtn">Import JSON</button>
-          <button class="pillbtn" id="resetBtn">Reset</button>
-        </div>
-        <div class="field hide" id="jsonBoxWrap">
-          <label>JSON backup / import</label>
-          <textarea id="jsonBox" spellcheck="false"></textarea>
-        </div>
-        <div id="medGrid" class="med-grid"></div>
-      </section>
+          <div class="field hide" id="jsonBoxWrap">
+            <label>JSON backup / import</label>
+            <textarea id="jsonBox" spellcheck="false"></textarea>
+          </div>
+          <div id="medGrid" class="med-grid"></div>
+        </section>
 
-      <section id="historyPanel" class="panel">
-        <div class="warn">Database storico delle somministrazioni registrate.</div>
-        <div id="historyList" class="shell" style="padding:0; overflow:hidden; border-radius:16px;"></div>
-      </section>
+        <section id="historyPanel" class="panel">
+          <div class="warn">Database storico delle somministrazioni registrate.</div>
+          <div id="historyList" class="shell" style="padding:0; overflow:hidden; border-radius:14px;"></div>
+        </section>
+      </div>
     </div>
   </main>
 
@@ -317,7 +646,7 @@
             </select>
           </div>
         </div>
-        <div id="rampFields" style="display:none; gap:10px; flex-direction:column;">
+        <div id="rampFields" style="display:none; gap:8px; flex-direction:column;">
           <div class="form-row">
             <div class="field">
               <label>Variazione Totale (es. 20mcg)</label>
@@ -330,8 +659,8 @@
           </div>
           <div class="field">
             <label>Frequenza variazione</label>
-            <div style="display:flex; align-items:center; gap:5px;">
-              Ogni <input type="number" id="mFreq" value="1" style="width:45px"> giorni
+            <div style="display:flex; align-items:center; gap:4px;">
+              Ogni <input type="number" id="mFreq" value="1" style="width:40px"> giorni
             </div>
           </div>
         </div>
@@ -373,7 +702,7 @@
   <div id="removeModal" class="modal">
     <div class="modal-content">
       <h2>Rimuovi Farmaco</h2>
-      <p style="font-size:11px; color:var(--muted); font-weight:750; margin-bottom:10px;">Seleziona un farmaco per eliminare tutte le sue voci dal piano.</p>
+      <p style="font-size:10px; color:var(--muted); font-weight:750; margin-bottom:8px;">Seleziona un farmaco per eliminare tutte le sue voci dal piano.</p>
       <div id="removeList" class="modal-list"></div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeRemoveModal()">Chiudi</button>
@@ -424,11 +753,10 @@
   }
   let state=load();
 
-  // *** MODIFICA: Forziamo la data corrente ogni volta che la pagina viene caricata ***
+  // Forza data corrente
   const today = isoLocal(new Date());
   if (state.selectedDate !== today) {
     state.selectedDate = today;
-    // Salviamo immediatamente per persistenza
     localStorage.setItem(STORE, JSON.stringify(state));
   }
 
@@ -533,13 +861,11 @@
     $('rampFields').style.display = 'none';
     $('mDur').value = '30';
     $('mUnit').value = 'days';
-    // Giorni
     const daysSet = new Set(med.days || [0,1,2,3,4,5,6]);
     selectedModalDays = [0,1,2,3,4,5,6].filter(i => daysSet.has(i));
     mDaysContainer.querySelectorAll('.daycheck').forEach((b,i)=>{
       b.classList.toggle('on', daysSet.has(i));
     });
-    // Slot
     const slotSet = new Set([med.time]);
     document.querySelectorAll('.slot-checks .slot-check').forEach(b=>{
       b.classList.toggle('on', slotSet.has(b.dataset.slot));
@@ -560,7 +886,6 @@
     btn.onclick = () => btn.classList.toggle('on');
   });
 
-  // Inizializza i bottoni dei giorni nel modal
   dayShort.forEach((dn, i) => {
     const b = document.createElement('button');
     b.className = 'daycheck on'; b.textContent = dn;
@@ -587,7 +912,6 @@
     if (selectedSlots.length === 0) { alert('Seleziona almeno un momento!'); return; }
 
     if (editingIndex !== null) {
-      // Modifica
       const med = state.meds[editingIndex];
       med.name = name;
       med.dose = doseInitStr;
@@ -599,7 +923,6 @@
       return;
     }
 
-    // Creazione
     const doseVal = parseFloat(doseInitStr.replace(/[^0-9.]/g, '')) || 0;
     const doseUnit = doseInitStr.replace(/[0-9.]/g, '').trim();
 
@@ -749,7 +1072,6 @@
       medGrid.innerHTML='<div class="empty">Nessun farmaco inserito. Premi "+ Aggiungi" per crearne uno.</div>';
       return;
     }
-    // Raggruppa per nome
     const groups = {};
     state.meds.forEach((m, idx) => {
       if(!groups[m.name]) groups[m.name] = { meds: [], indices: [] };
@@ -806,7 +1128,6 @@
     canvas.width = size;
     canvas.height = size;
     const ctx = canvas.getContext('2d');
-    // Sfondo gradiente
     const grad = ctx.createLinearGradient(0, 0, size, size);
     grad.addColorStop(0, '#203a8f');
     grad.addColorStop(1, '#3e63dd');
@@ -814,11 +1135,9 @@
     ctx.beginPath();
     ctx.arc(size/2, size/2, size/2, 0, Math.PI*2);
     ctx.fill();
-    // Bordo leggero
     ctx.strokeStyle = 'rgba(255,255,255,0.5)';
     ctx.lineWidth = size/40;
     ctx.stroke();
-    // Pillola bianca
     const pillW = size*0.4, pillH = size*0.55;
     const x = (size - pillW)/2, y = (size - pillH)/2;
     ctx.shadowColor = 'rgba(0,0,0,0.2)';
@@ -828,7 +1147,6 @@
     ctx.ellipse(x + pillW/2, y + pillH/2, pillW/2, pillH/2, 0, 0, Math.PI*2);
     ctx.fill();
     ctx.shadowBlur = 0;
-    // Spunta verde
     ctx.fillStyle = '#16a34a';
     ctx.font = `bold ${size*0.35}px sans-serif`;
     ctx.textAlign = 'center';
