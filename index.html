@@ -909,6 +909,9 @@
     editingIndex = null;
   };
 
+  // --- AGGIUNTA: collega il pulsante "Conferma" alla funzione confirmMed ---
+  $('modalConfirmBtn').onclick = window.confirmMed;
+
   $('addMedBtn').onclick=openCreateModal;
   $('mOp').onchange=e=>$('rampFields').style.display = (e.target.value === 'none' ? 'none' : 'flex');
   document.querySelectorAll('.slot-checks .slot-check').forEach(btn => {
@@ -997,6 +1000,9 @@
     }
     save(); render(); closeModal();
   };
+
+  // (La riga di collegamento è stata aggiunta sopra, ora rimuovo il doppione se esiste)
+  // $('modalConfirmBtn').onclick = window.confirmMed;  // già presente
 
   $('removeMedBtn').onclick=()=>{
     const list = $('removeList'); list.innerHTML = '';
