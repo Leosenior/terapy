@@ -423,7 +423,14 @@
     return defaultState();
   }
   let state=load();
-  state.selectedDate = isoLocal(new Date());
+
+  // *** MODIFICA: Forziamo la data corrente ogni volta che la pagina viene caricata ***
+  const today = isoLocal(new Date());
+  if (state.selectedDate !== today) {
+    state.selectedDate = today;
+    // Salviamo immediatamente per persistenza
+    localStorage.setItem(STORE, JSON.stringify(state));
+  }
 
   function save(){
     localStorage.setItem(STORE,JSON.stringify(state));
@@ -827,15 +834,12 @@
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText('✓', size/2, size/2 + size*0.04);
-    // Piccola croce rossa sulla pillola? No, lasciamo così.
     return canvas.toDataURL('image/png');
   }
 
   const iconData = generateIcon(512);
-  // Imposta apple-touch-icon
   const appleLink = document.querySelector('link[rel="apple-touch-icon"]');
   if (appleLink) appleLink.href = iconData;
-  // Crea manifest
   const manifest = {
     name: "Terapia Tracker",
     short_name: "Terapia",
