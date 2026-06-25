@@ -2,9 +2,10 @@
 <html lang="it">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no, maximum-scale=1.0" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Terapia" />
   <link rel="apple-touch-icon" href="" />
   <link rel="manifest" href="" />
   <title>Terapia - tracker cloud</title>
@@ -23,10 +24,6 @@
       --red:#ef4444;
       --shadow:0 8px 20px rgba(31,55,110,.10);
       --shadow2:0 4px 10px rgba(31,55,110,.06);
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-      --safe-left: env(safe-area-inset-left, 0px);
-      --safe-right: env(safe-area-inset-right, 0px);
     }
     *{box-sizing:border-box}
     html,body{
@@ -38,13 +35,18 @@
       height:100%;
       min-height:100vh;
       overflow:hidden;
+      position:fixed;
+      top:0;
+      left:0;
+      right:0;
+      bottom:0;
+      width:100%;
     }
     body{
       display:flex;
       flex-direction:column;
-      padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
-      /* per evitare che il contenuto venga tagliato */
-      box-sizing:border-box;
+      /* Usa le safe area in modo nativo */
+      padding: env(safe-area-inset-top, 8px) env(safe-area-inset-right, 6px) env(safe-area-inset-bottom, 6px) env(safe-area-inset-left, 6px);
     }
     button,input,select,textarea{font:inherit}
     button{cursor:pointer;border:0;background:transparent;color:inherit}
@@ -54,10 +56,11 @@
       flex-direction:column;
       max-width:500px;
       margin:0 auto;
-      padding:8px 6px 0;
+      padding:0;
       width:100%;
       height:100%;
       overflow:hidden;
+      min-height:0;
     }
     .shell{
       flex:1;
@@ -66,56 +69,65 @@
       background:rgba(255,255,255,.82);
       backdrop-filter:blur(8px);
       border:1px solid rgba(255,255,255,.7);
-      border-radius:24px;
+      border-radius:20px;
       box-shadow:var(--shadow);
-      padding:10px 10px 8px;
+      padding:8px 8px 4px;
       overflow:hidden;
+      min-height:0;
     }
     .top{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
-      gap:6px;
-      margin-bottom:6px;
-      padding:2px 0 0;
+      gap:4px;
+      margin-bottom:4px;
+      padding:0;
       flex-shrink:0;
     }
+    .header-left{flex:1;min-width:0;}
     h1{
-      font-size:22px;
-      line-height:1;
-      margin:0 0 1px;
+      font-size:20px;
+      line-height:1.1;
+      margin:0;
       font-weight:950;
       letter-spacing:-.05em;
+      display:flex;
+      align-items:center;
+      flex-wrap:wrap;
+      gap:2px;
     }
     .sub{
       color:var(--muted);
       font-weight:800;
-      font-size:11px;
+      font-size:9px;
       display:flex;
       flex-wrap:wrap;
       align-items:center;
-      gap:4px;
+      gap:3px;
+      margin-top:0px;
+      line-height:1.2;
     }
     .prese-oggi{
       background:var(--navy2);
       color:#fff;
-      padding:0 8px;
-      border-radius:10px;
+      padding:0 6px;
+      border-radius:8px;
       font-weight:900;
-      font-size:10px;
+      font-size:8px;
       white-space:nowrap;
       display:inline-block;
+      line-height:16px;
     }
     .sync-badge{
       display:inline-block;
-      padding:1px 6px;
-      border-radius:8px;
-      font-size:8px;
+      padding:0 5px;
+      border-radius:6px;
+      font-size:7px;
       font-weight:900;
-      margin-left:3px;
       vertical-align:middle;
       letter-spacing:.02em;
       white-space:nowrap;
+      line-height:14px;
     }
     .sync-badge.ok{background:#dcfce7;color:#166534;border:1px solid #86efac}
     .sync-badge.off{background:#fef3c7;color:#854d0e;border:1px solid #fcd34d}
@@ -124,81 +136,84 @@
 
     .tabs{
       display:flex;
-      gap:3px;
-      padding:3px;
-      border-radius:14px;
+      gap:2px;
+      padding:2px;
+      border-radius:12px;
       background:linear-gradient(180deg,#f9fbff,#edf2ff);
       border:1px solid var(--line);
       box-shadow:var(--shadow2);
       flex-shrink:0;
+      align-self:center;
     }
     .tab{
-      padding:5px 9px;
-      border-radius:10px;
+      padding:4px 7px;
+      border-radius:8px;
       color:var(--muted);
       font-weight:900;
-      font-size:10px;
+      font-size:9px;
       white-space:nowrap;
       transition:.15s ease;
     }
     .tab.active{
       background:linear-gradient(135deg,var(--navy),var(--navy2));
       color:white;
-      box-shadow:0 4px 10px rgba(62,99,221,.25);
+      box-shadow:0 3px 8px rgba(62,99,221,.25);
     }
 
     .panel-container{
       flex:1;
       overflow-y:auto;
-      margin-top:6px;
-      padding-bottom:4px;
+      margin-top:4px;
+      padding-bottom:2px;
       -webkit-overflow-scrolling:touch;
+      min-height:0;
     }
     .panel{display:none;height:100%;}
     .panel.active{display:block;}
 
     .weeknav{
       display:grid;
-      grid-template-columns:30px 1fr 30px;
+      grid-template-columns:26px 1fr 26px;
       align-items:center;
-      gap:5px;
-      margin-bottom:6px;
+      gap:4px;
+      margin-bottom:4px;
     }
     .square{
-      height:30px;
+      height:26px;
       border:1px solid var(--line);
-      border-radius:9px;
+      border-radius:8px;
       display:flex;
       align-items:center;
       justify-content:center;
-      font-size:16px;
+      font-size:14px;
       font-weight:900;
       background:linear-gradient(180deg,#fff,#f2f6ff);
       box-shadow:var(--shadow2);
       transition:.15s ease;
+      padding:0;
     }
     .range{
       text-align:center;
-      font-size:12px;
+      font-size:11px;
       font-weight:950;
       letter-spacing:-.02em;
       cursor:pointer;
       padding:1px 0;
-      border-radius:8px;
+      border-radius:6px;
       transition:background .15s;
     }
     .range:hover{background:var(--soft);}
-    .range small{font-size:10px;color:var(--navy2);font-weight:900;margin-left:3px;}
+    .range small{font-size:9px;color:var(--navy2);font-weight:900;margin-left:2px;}
     .days{
       display:grid;
       grid-template-columns:repeat(7,1fr);
-      gap:3px;
-      margin-bottom:8px;
+      gap:2px;
+      margin-bottom:4px;
     }
     .daychip{
-      height:38px;
+      height:32px;
       border:1px solid var(--line);
-      border-radius:8px;
+      border-radius:6px;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -208,15 +223,16 @@
       font-weight:900;
       box-shadow:var(--shadow2);
       transition:.15s ease;
+      padding:0;
     }
-    .daychip .dn{font-size:8px;margin-bottom:1px;}
-    .daychip .dd{font-size:14px;line-height:1;color:var(--ink);letter-spacing:-.05em;}
+    .daychip .dn{font-size:7px;margin-bottom:0px;line-height:1;}
+    .daychip .dd{font-size:12px;line-height:1;color:var(--ink);letter-spacing:-.05em;}
     .daychip.active{
       background:linear-gradient(135deg,var(--navy),var(--navy2));
       border-color:transparent;
       color:#d9e4ff;
       transform:translateY(-1px);
-      box-shadow:0 6px 12px rgba(62,99,221,.25);
+      box-shadow:0 4px 10px rgba(62,99,221,.25);
     }
     .daychip.active .dd{color:white;}
     .daychip.today:not(.active){border-color:#a6c0ff;background:linear-gradient(180deg,#ffffff,#eef4ff);}
@@ -225,12 +241,12 @@
       display:flex;
       align-items:center;
       justify-content:space-between;
-      gap:6px;
-      margin-bottom:6px;
+      gap:4px;
+      margin-bottom:4px;
       padding:0;
     }
     .daytitle h2{
-      font-size:16px;
+      font-size:14px;
       line-height:1.05;
       margin:0;
       font-weight:950;
@@ -239,50 +255,50 @@
     .daytitle h2 span{
       display:block;
       color:var(--muted);
-      font-size:12px;
+      font-size:10px;
       font-weight:850;
       letter-spacing:-.02em;
-      margin-top:1px;
+      margin-top:0px;
     }
     .cycle{
       color:var(--navy2);
       font-weight:900;
-      font-size:10px;
+      font-size:9px;
       white-space:nowrap;
       background:#edf3ff;
       border:1px solid #d7e3ff;
-      border-radius:9px;
-      padding:3px 7px;
+      border-radius:7px;
+      padding:2px 6px;
     }
-    .section{margin:0 0 8px;}
+    .section{margin:0 0 4px;}
     .section h3{
-      font-size:10px;
+      font-size:9px;
       letter-spacing:.08em;
       text-transform:uppercase;
       color:var(--muted);
       font-weight:950;
-      margin:0 0 4px;
+      margin:0 0 2px;
       padding-left:2px;
     }
     .empty{
       border:1px dashed var(--line);
-      border-radius:10px;
-      padding:8px;
+      border-radius:8px;
+      padding:6px;
       color:var(--muted);
       font-weight:800;
       background:var(--soft);
-      font-size:11px;
+      font-size:10px;
     }
     .card{
       display:flex;
       align-items:center;
-      gap:6px;
-      min-height:34px;
+      gap:4px;
+      min-height:28px;
       border:1px solid var(--line);
-      border-radius:10px;
+      border-radius:8px;
       background:linear-gradient(180deg,#ffffff,#f9fbff);
-      padding:4px 8px;
-      margin:0 0 3px;
+      padding:3px 6px;
+      margin:0 0 2px;
       box-shadow:var(--shadow2);
       transition:.15s ease;
     }
@@ -290,8 +306,8 @@
     .card.taken .name,.card.taken .dose{text-decoration:line-through;text-decoration-thickness:2px;text-decoration-color:#59996f;color:#557162;}
     .card.taken .note{color:#64806f;}
     .check{
-      width:20px;height:20px;
-      border-radius:7px;
+      width:18px;height:18px;
+      border-radius:6px;
       border:2px solid var(--line);
       display:flex;
       align-items:center;
@@ -299,73 +315,74 @@
       flex:0 0 auto;
       background:#fff;
       color:white;
-      font-size:12px;
+      font-size:10px;
       font-weight:900;
       transition:.15s ease;
+      padding:0;
     }
     .taken .check{
       background:linear-gradient(135deg,var(--green),#22c55e);
       border-color:transparent;
-      box-shadow:0 3px 8px rgba(34,197,94,.2);
+      box-shadow:0 2px 6px rgba(34,197,94,.2);
     }
     .txt{min-width:0;flex:1;}
     .line1{
       display:flex;
       flex-wrap:wrap;
-      gap:3px;
+      gap:2px;
       align-items:baseline;
-      font-size:14px;
+      font-size:12px;
       line-height:1.1;
       font-weight:950;
       letter-spacing:-.03em;
     }
-    .dose{color:var(--navy2);font-weight:850;}
-    .note{margin-top:1px;color:var(--muted);font-size:9px;font-weight:850;line-height:1.2;}
+    .dose{color:var(--navy2);font-weight:850;font-size:10px;}
+    .note{margin-top:0px;color:var(--muted);font-size:8px;font-weight:850;line-height:1.1;}
 
     .warn{
       background:linear-gradient(180deg,#fff7e8,#fff2cc);
       border:1px solid #f4dd97;
       color:#765300;
-      border-radius:10px;
-      padding:6px 8px;
+      border-radius:8px;
+      padding:4px 6px;
       font-weight:800;
-      line-height:1.3;
-      margin:0 0 8px;
-      font-size:10px;
+      line-height:1.2;
+      margin:0 0 4px;
+      font-size:9px;
     }
 
-    .formtop{display:grid;gap:6px;margin-bottom:8px;}
-    .field{display:grid;gap:3px;}
-    label{font-weight:850;color:var(--muted);font-size:10px;letter-spacing:.02em;}
+    .formtop{display:grid;gap:4px;margin-bottom:4px;}
+    .field{display:grid;gap:2px;}
+    label{font-weight:850;color:var(--muted);font-size:9px;letter-spacing:.02em;}
     input,select,textarea{
       width:100%;
       border:1px solid var(--line);
-      border-radius:8px;
-      padding:5px 7px;
+      border-radius:6px;
+      padding:4px 6px;
       background:#fff;
       color:var(--ink);
       font-weight:750;
       outline:none;
       box-shadow:inset 0 1px 2px rgba(0,0,0,.02);
-      font-size:11px;
+      font-size:10px;
     }
-    input:focus,select:focus,textarea:focus{border-color:#95b4ff;box-shadow:0 0 0 3px rgba(62,99,221,.10);}
-    textarea{min-height:60px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:9px;font-weight:600;}
+    input:focus,select:focus,textarea:focus{border-color:#95b4ff;box-shadow:0 0 0 2px rgba(62,99,221,.10);}
+    textarea{min-height:50px;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:8px;font-weight:600;}
     .toolbar{
       display:flex;
       flex-wrap:wrap;
-      gap:4px;
-      margin:6px 0 8px;
+      gap:3px;
+      margin:4px 0 4px;
     }
     .pillbtn{
       border:1px solid var(--line);
-      border-radius:8px;
-      padding:4px 7px;
+      border-radius:6px;
+      padding:3px 6px;
       font-weight:850;
       background:linear-gradient(180deg,#fff,#f7faff);
       color:var(--ink);
       box-shadow:var(--shadow2);
-      font-size:9px;
+      font-size:8px;
     }
     .pillbtn.dark{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-color:transparent;}
     .pillbtn.red{background:linear-gradient(135deg,var(--red),#ef4444);color:#fff;border-color:transparent;}
@@ -373,12 +390,12 @@
     .med-grid{
       display:flex;
       flex-wrap:wrap;
-      gap:8px;
-      margin-top:4px;
+      gap:6px;
+      margin-top:2px;
     }
     .med-icon{
-      width:68px;
-      border-radius:14px;
+      width:60px;
+      border-radius:12px;
       background:linear-gradient(135deg,var(--navy),var(--navy2));
       color:#fff;
       display:flex;
@@ -386,20 +403,20 @@
       align-items:center;
       justify-content:center;
       font-weight:900;
-      font-size:10px;
+      font-size:9px;
       box-shadow:var(--shadow2);
       transition:.2s ease;
       cursor:pointer;
       text-align:center;
-      padding:6px 2px;
+      padding:4px 2px;
       border:1px solid transparent;
-      gap:1px;
+      gap:0px;
     }
-    .med-icon .abbr{font-size:24px;line-height:1;margin-bottom:1px;}
-    .med-icon .dose-small{font-size:9px;opacity:.85;}
-    .med-icon .med-name{font-size:9px;font-weight:850;line-height:1.1;max-width:64px;word-break:break-word;opacity:.95;}
-    .med-icon .count{background:rgba(255,255,255,.2);border-radius:8px;padding:0 5px;font-size:8px;margin-top:1px;}
-    .med-icon:hover{transform:scale(1.04);box-shadow:0 6px 14px rgba(62,99,221,.25);}
+    .med-icon .abbr{font-size:20px;line-height:1;margin-bottom:1px;}
+    .med-icon .dose-small{font-size:8px;opacity:.85;}
+    .med-icon .med-name{font-size:8px;font-weight:850;line-height:1.1;max-width:56px;word-break:break-word;opacity:.95;}
+    .med-icon .count{background:rgba(255,255,255,.2);border-radius:6px;padding:0 4px;font-size:7px;margin-top:0px;}
+    .med-icon:hover{transform:scale(1.04);box-shadow:0 4px 12px rgba(62,99,221,.25);}
     .hide{display:none!important;}
 
     .modal{
@@ -412,84 +429,84 @@
       align-items:center;
       justify-content:center;
       z-index:1000;
-      padding:14px;
+      padding:12px;
     }
     .modal.active{display:flex;}
     .modal-content{
       background:#fff;
-      border-radius:16px;
-      padding:16px;
-      max-width:440px;
+      border-radius:14px;
+      padding:14px;
+      max-width:420px;
       width:100%;
       box-shadow:var(--shadow);
-      max-height:90vh;
+      max-height:85vh;
       overflow-y:auto;
     }
-    .modal-content h2{margin:0 0 10px;font-size:17px;font-weight:900;letter-spacing:-0.04em;}
-    .modal-footer{display:flex;gap:5px;margin-top:12px;}
-    .modal-footer button{flex:1;padding:7px;border-radius:9px;font-weight:850;font-size:11px;}
+    .modal-content h2{margin:0 0 8px;font-size:16px;font-weight:900;letter-spacing:-0.04em;}
+    .modal-footer{display:flex;gap:4px;margin-top:10px;}
+    .modal-footer button{flex:1;padding:6px;border-radius:8px;font-weight:850;font-size:10px;}
     .btn-cancel{background:var(--soft);color:var(--muted);}
     .btn-confirm{background:var(--navy);color:#fff;}
-    .form-grid{display:grid;gap:8px;}
-    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
-    .slot-checks{display:flex;gap:5px;margin-top:2px;}
-    .slot-check{flex:1;border:1px solid var(--line);border-radius:7px;padding:4px;font-size:9px;font-weight:850;text-align:center;background:#fff;}
+    .form-grid{display:grid;gap:6px;}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+    .slot-checks{display:flex;gap:4px;margin-top:2px;}
+    .slot-check{flex:1;border:1px solid var(--line);border-radius:6px;padding:3px;font-size:8px;font-weight:850;text-align:center;background:#fff;}
     .slot-check.on{background:var(--navy2);color:#fff;border-color:transparent;}
 
-    .modal-list{display:grid;gap:4px;margin-top:5px;}
+    .modal-list{display:grid;gap:3px;margin-top:4px;}
     .modal-list-item{
       display:flex;justify-content:space-between;align-items:center;
-      padding:6px 10px;border:1px solid var(--line);border-radius:9px;
-      background:var(--soft);font-weight:850;font-size:11px;
+      padding:5px 8px;border:1px solid var(--line);border-radius:8px;
+      background:var(--soft);font-weight:850;font-size:10px;
     }
-    .modal-list-item button{color:var(--red);font-weight:950;font-size:9px;border:1px solid var(--red);border-radius:5px;padding:1px 5px;background:#fff;}
+    .modal-list-item button{color:var(--red);font-weight:950;font-size:8px;border:1px solid var(--red);border-radius:4px;padding:1px 4px;background:#fff;}
 
     .history-item{
-      padding:6px 8px;
+      padding:4px 6px;
       border-bottom:1px solid var(--line);
       display:flex;
       justify-content:space-between;
       align-items:center;
     }
     .history-item:last-child{border:0;}
-    .history-date{font-weight:900;font-size:11px;color:var(--navy);}
-    .history-details{font-size:10px;color:var(--muted);font-weight:750;}
+    .history-date{font-weight:900;font-size:10px;color:var(--navy);}
+    .history-details{font-size:9px;color:var(--muted);font-weight:750;}
 
     .date-popup{
       display:none;
       position:absolute;
       background:white;
       border:1px solid var(--line);
-      border-radius:12px;
-      padding:8px;
+      border-radius:10px;
+      padding:6px;
       box-shadow:var(--shadow);
       z-index:500;
-      width:200px;
+      width:180px;
       top:100%;
       left:50%;
       transform:translateX(-50%);
-      margin-top:3px;
+      margin-top:2px;
     }
     .date-popup.open{display:block;}
     .date-popup input[type="date"]{
       width:100%;
-      padding:5px;
-      border-radius:7px;
+      padding:4px;
+      border-radius:6px;
       border:1px solid var(--line);
       font-weight:800;
-      font-size:12px;
+      font-size:11px;
     }
     .date-popup .actions{
       display:flex;
-      gap:4px;
-      margin-top:5px;
+      gap:3px;
+      margin-top:4px;
     }
     .date-popup .actions button{
       flex:1;
-      padding:4px;
-      border-radius:6px;
+      padding:3px;
+      border-radius:5px;
       font-weight:850;
-      font-size:10px;
+      font-size:9px;
       border:1px solid var(--line);
       background:var(--soft);
     }
@@ -499,31 +516,33 @@
     .daysedit{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-top:2px;}
     .daycheck{
       border:1px solid var(--line);
-      border-radius:5px;
+      border-radius:4px;
       text-align:center;
-      padding:3px 0;
-      font-size:9px;
+      padding:2px 0;
+      font-size:8px;
       font-weight:900;
       color:var(--muted);
       user-select:none;
       background:#fff;
     }
-    .daycheck.on{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff;box-shadow:0 3px 6px rgba(62,99,221,.15);}
+    .daycheck.on{background:linear-gradient(135deg,var(--navy),var(--navy2));border-color:transparent;color:#fff;box-shadow:0 2px 5px rgba(62,99,221,.15);}
 
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+
+    /* Mini pulsante per rimuovere storico */
+    .mini{font-size:8px;border:1px solid var(--line);border-radius:4px;padding:2px 4px;font-weight:900;background:#fff;color:var(--muted);}
 
     @media (max-width:420px){
-      .app{padding:4px 4px 0;}
-      .shell{padding:6px 6px 4px;border-radius:18px;}
-      h1{font-size:20px;}
-      .tabs{padding:2px;}.tab{padding:4px 7px;font-size:9px;}
-      .med-icon{width:60px;padding:4px 2px;}.med-icon .abbr{font-size:20px;}.med-icon .med-name{font-size:8px;}
-      .days{gap:2px;}.daychip{height:34px;border-radius:6px;}.daychip .dd{font-size:12px;}
-      .card{padding:3px 6px;min-height:30px;}.line1{font-size:12px;}
+      .shell{padding:6px 6px 2px;border-radius:16px;}
+      h1{font-size:18px;}
+      .tabs{padding:2px;gap:1px;}.tab{padding:3px 5px;font-size:8px;}
+      .med-icon{width:52px;padding:3px 1px;}.med-icon .abbr{font-size:18px;}.med-icon .med-name{font-size:7px;}
+      .days{gap:1px;}.daychip{height:28px;border-radius:5px;}.daychip .dd{font-size:11px;}
+      .card{padding:2px 4px;min-height:24px;}.line1{font-size:11px;}
       .grid2{grid-template-columns:1fr;}
-      .cycle{font-size:9px;padding:2px 5px;}
-      .daytitle h2{font-size:15px;}.daytitle h2 span{font-size:11px;}
-      .date-popup{width:160px;left:0;transform:none;}
+      .cycle{font-size:8px;padding:2px 4px;}
+      .daytitle h2{font-size:13px;}.daytitle h2 span{font-size:9px;}
+      .date-popup{width:150px;left:0;transform:none;}
     }
   </style>
 </head>
@@ -531,24 +550,27 @@
   <main class="app">
     <div class="shell">
       <section class="top">
-        <div>
-          <h1>Terapia <span id="syncBadge" class="sync-badge off">⏳ Connessione...</span></h1>
+        <div class="header-left">
+          <h1>
+            Terapia
+            <span id="syncBadge" class="sync-badge off">⏳ Connessione...</span>
+          </h1>
           <div class="sub">
             <span id="startText"></span>
             <span class="prese-oggi" id="preseOggiBadge">Prese oggi: 0/0 (0%)</span>
           </div>
         </div>
         <div class="tabs" role="tablist">
-          <button class="tab active" id="tabWeek">Settimana</button>
-          <button class="tab" id="tabMeds">Farmaci</button>
-          <button class="tab" id="tabHistory">Storico</button>
+          <button class="tab active" id="tabWeek">Sett</button>
+          <button class="tab" id="tabMeds">Farma</button>
+          <button class="tab" id="tabHistory">Stor</button>
         </div>
       </section>
 
       <div class="panel-container">
         <section id="weekPanel" class="panel active">
           <div class="weeknav">
-            <button class="square" id="prevWeek">←</button>
+            <button class="square" id="prevWeek">‹</button>
             <div class="range-wrap">
               <div class="range" id="weekRange">⬇️</div>
               <div class="date-popup" id="datePopup">
@@ -559,7 +581,7 @@
                 </div>
               </div>
             </div>
-            <button class="square" id="nextWeek">→</button>
+            <button class="square" id="nextWeek">›</button>
           </div>
           <div class="days" id="days"></div>
           <div class="daytitle">
@@ -570,20 +592,20 @@
         </section>
 
         <section id="medsPanel" class="panel">
-          <div class="warn">App sincronizzata su tutti i dispositivi. Non sostituisce medico o farmacista.</div>
+          <div class="warn">App sincronizzata. Non sostituisce medico.</div>
           <div class="formtop">
             <div class="grid2">
               <div class="field">
-                <label>Data inizio ciclo globale</label>
+                <label>Data inizio ciclo</label>
                 <input type="date" id="startDate" />
               </div>
               <div class="field">
-                <label>Durata ciclo globale (opzionale)</label>
-                <div style="display:flex; gap:4px;">
+                <label>Durata (opzionale)</label>
+                <div style="display:flex; gap:3px;">
                   <input type="number" id="cycleDuration" value="" placeholder="∞" style="flex:1" />
                   <select id="cycleUnit" style="flex:1">
                     <option value="days">Giorni</option>
-                    <option value="weeks">Settimane</option>
+                    <option value="weeks">Sett</option>
                     <option value="months">Mesi</option>
                     <option value="years">Anni</option>
                   </select>
@@ -594,20 +616,20 @@
           <div class="toolbar">
             <button class="pillbtn dark" id="addMedBtn">+ Aggiungi</button>
             <button class="pillbtn red" id="removeMedBtn">Rimuovi</button>
-            <button class="pillbtn" id="exportBtn">Export JSON</button>
-            <button class="pillbtn" id="importBtn">Import JSON</button>
+            <button class="pillbtn" id="exportBtn">Export</button>
+            <button class="pillbtn" id="importBtn">Import</button>
             <button class="pillbtn" id="resetBtn">Reset</button>
           </div>
           <div class="field hide" id="jsonBoxWrap">
-            <label>JSON backup / import</label>
+            <label>JSON</label>
             <textarea id="jsonBox" spellcheck="false"></textarea>
           </div>
           <div id="medGrid" class="med-grid"></div>
         </section>
 
         <section id="historyPanel" class="panel">
-          <div class="warn">Database storico delle somministrazioni registrate.</div>
-          <div id="historyList" class="shell" style="padding:0; overflow:hidden; border-radius:14px;"></div>
+          <div class="warn">Storico somministrazioni registrate.</div>
+          <div id="historyList" class="shell" style="padding:0; overflow:hidden; border-radius:12px;"></div>
         </section>
       </div>
     </div>
@@ -634,39 +656,39 @@
         </div>
         <div class="form-row">
           <div class="field">
-            <label>Dose Totale Iniziale (es. 1g)</label>
+            <label>Dose Totale Iniziale</label>
             <input type="text" id="mDoseInit" placeholder="1g">
           </div>
           <div class="field">
             <label>Operazione Rampa</label>
             <select id="mOp">
-              <option value="none">Nessuna (dose fissa)</option>
+              <option value="none">Nessuna</option>
               <option value="add">Aumenta (+)</option>
               <option value="sub">Sottrai (-)</option>
             </select>
           </div>
         </div>
-        <div id="rampFields" style="display:none; gap:8px; flex-direction:column;">
+        <div id="rampFields" style="display:none; gap:6px; flex-direction:column;">
           <div class="form-row">
             <div class="field">
-              <label>Variazione Totale (es. 20mcg)</label>
+              <label>Variazione Totale</label>
               <input type="text" id="mStep" placeholder="20mcg">
             </div>
             <div class="field">
-              <label>Limite Totale (stop)</label>
-              <input type="text" id="mLimit" placeholder="es. 100mcg">
+              <label>Limite Totale</label>
+              <input type="text" id="mLimit" placeholder="100mcg">
             </div>
           </div>
           <div class="field">
             <label>Frequenza variazione</label>
-            <div style="display:flex; align-items:center; gap:4px;">
-              Ogni <input type="number" id="mFreq" value="1" style="width:40px"> giorni
+            <div style="display:flex; align-items:center; gap:3px;">
+              Ogni <input type="number" id="mFreq" value="1" style="width:35px"> giorni
             </div>
           </div>
         </div>
         <div class="form-row">
           <div class="field">
-            <label>Durata (se Data Fine vuota)</label>
+            <label>Durata (se Fine vuota)</label>
             <input type="number" id="mDur" value="30">
           </div>
           <div class="field">
@@ -683,7 +705,7 @@
           <div class="daysedit" id="mDays"></div>
         </div>
         <div class="field">
-          <label>Suddivisione giornata (dose totale divisa tra questi)</label>
+          <label>Suddivisione giornata</label>
           <div class="slot-checks">
             <button class="slot-check on" data-slot="mattina">Mattina</button>
             <button class="slot-check on" data-slot="pomeriggio">Pomeriggio</button>
@@ -702,7 +724,7 @@
   <div id="removeModal" class="modal">
     <div class="modal-content">
       <h2>Rimuovi Farmaco</h2>
-      <p style="font-size:10px; color:var(--muted); font-weight:750; margin-bottom:8px;">Seleziona un farmaco per eliminare tutte le sue voci dal piano.</p>
+      <p style="font-size:9px; color:var(--muted); font-weight:750; margin-bottom:6px;">Seleziona un farmaco per eliminare tutte le sue voci.</p>
       <div id="removeList" class="modal-list"></div>
       <div class="modal-footer">
         <button class="btn-cancel" onclick="closeRemoveModal()">Chiudi</button>
@@ -871,7 +893,7 @@
       b.classList.toggle('on', slotSet.has(b.dataset.slot));
     });
     modalTitle.textContent = 'Modifica Farmaco';
-    modalConfirmBtn.textContent = 'Salva modifiche';
+    modalConfirmBtn.textContent = 'Salva';
     $('medModal').classList.add('active');
   }
 
@@ -975,7 +997,7 @@
     if(uniqueMeds.length === 0){ list.innerHTML = '<div class="empty">Nessun farmaco presente.</div>'; }
     uniqueMeds.forEach(name => {
       const item = document.createElement('div'); item.className = 'modal-list-item';
-      item.innerHTML = `<span>${name}</span> <button onclick="removeMedByName('${name.replace(/'/g, "\\'")}')">RIMUOVI TUTTI</button>`;
+      item.innerHTML = `<span>${name}</span> <button onclick="removeMedByName('${name.replace(/'/g, "\\'")}')">RIMUOVI</button>`;
       list.appendChild(item);
     });
     $('removeModal').classList.add('active');
@@ -1023,7 +1045,7 @@
   function renderWeek(){
     const mon=mondayOf(state.selectedDate);
     const todayIso=isoLocal(new Date());
-    weekRange.innerHTML=`${fmtShort(mon)} — ${fmtShort(addDays(mon,6))} ${todayIso>=isoLocal(mon)&&todayIso<=isoLocal(addDays(mon,6))?'<small>(corrente)</small>':''}`;
+    weekRange.innerHTML=`${fmtShort(mon)} — ${fmtShort(addDays(mon,6))} ${todayIso>=isoLocal(mon)&&todayIso<=isoLocal(addDays(mon,6))?'<small>(corr)</small>':''}`;
     daysEl.innerHTML='';
     for(let i=0;i<7;i++){
       const d=addDays(mon,i), iso=isoLocal(d);
@@ -1036,7 +1058,7 @@
     dayTitle.innerHTML=`${dayNames[dayIndex(state.selectedDate)]} <span>${fmtFull(parseIso(state.selectedDate))}</span>`;
     const c=diffDays(state.selectedDate,state.startDate)+1;
     const totalDays = state.cycleDuration !== null ? (state.cycleUnit === 'weeks' ? state.cycleDuration * 7 : state.cycleDuration) : Infinity;
-    cycleText.textContent = state.cycleDuration === null ? 'Ciclo perpetuo' : (c > 0 && c <= totalDays ? `Giorno ${c} di ${totalDays}` : (c > totalDays ? 'Ciclo terminato' : 'Prima del ciclo'));
+    cycleText.textContent = state.cycleDuration === null ? 'Perpetuo' : (c > 0 && c <= totalDays ? `Giorno ${c}/${totalDays}` : (c > totalDays ? 'Terminato' : 'Prima'));
     renderSummary();
     sections.innerHTML='';
     slots.forEach(([slot,label])=>{
@@ -1069,7 +1091,7 @@
   function renderMeds(){
     medGrid.innerHTML='';
     if(state.meds.length===0){
-      medGrid.innerHTML='<div class="empty">Nessun farmaco inserito. Premi "+ Aggiungi" per crearne uno.</div>';
+      medGrid.innerHTML='<div class="empty">Nessun farmaco. Premi "+ Aggiungi".</div>';
       return;
     }
     const groups = {};
@@ -1091,7 +1113,7 @@
         <div class="abbr">${abbr}</div>
         <div class="med-name">${name}</div>
         <div class="dose-small">${first.dose}</div>
-        <div class="count">${count} voci</div>
+        <div class="count">${count}</div>
       `;
       div.onclick = (e) => {
         e.stopPropagation();
@@ -1110,7 +1132,7 @@
       const m = state.meds.find(item => item.id === id);
       if(m){
         const div = document.createElement('div'); div.className = 'history-item';
-        div.innerHTML = `<div><div class="history-date">${fmtFull(parseIso(date))}</div><div class="history-details">${m.name} - ${m.dose} (${m.time})</div></div><button class="mini" style="color:var(--red)" onclick="removeHistory('${key}')">Elimina</button>`;
+        div.innerHTML = `<div><div class="history-date">${fmtFull(parseIso(date))}</div><div class="history-details">${m.name} - ${m.dose}</div></div><button class="mini" style="color:var(--red)" onclick="removeHistory('${key}')">✕</button>`;
         box.appendChild(div);
       }
     });
