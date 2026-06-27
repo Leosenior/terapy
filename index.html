@@ -1206,12 +1206,12 @@
 })();
 </script>
 
-<!-- ============ MODULO FIREBASE ============ -->
+<!-- ============ MODULO FIREBASE (corretto) ============ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getFirestore, enableIndexedDbPersistence,
-  doc, setDoc, onSnapshot, getDoc
+  doc, setDoc, onSnapshot
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -1226,7 +1226,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const DOC_REF = doc(db, "sharedTherapy", "main");
-
 const badge = document.getElementById('syncBadge');
 function setBadge(type, text) {
   badge.className = 'sync-badge ' + type;
@@ -1241,37 +1240,43 @@ try {
 
 let ignoreNextSnapshot = false;
 let syncTimeout = null;
+let firstSnapshot = true;  // <--- Forza la data di oggi al primo avvio
 
-try {
-  const snap = await getDoc(DOC_REF);
-  if (snap.exists()) {
-    const remote = snap.data();
-    if (remote && remote.state) {
-      window.__therapy_setState(remote.state);
-      setBadge('ok', '🟢 Sincronizzato');
-    } else {
-      const local = window.__therapy_getState();
-      await setDoc(DOC_REF, { state: local, updatedAt: Date.now() });
-      setBadge('ok', '🟢 Sincronizzato');
-    }
-  } else {
-    const local = window.__therapy_getState();
-    await setDoc(DOC_REF, { state: local, updatedAt: Date.now() });
-    setBadge('ok', '🟢 Sincronizzato');
-  }
-} catch(err) {
-  console.error('Errore caricamento iniziale:', err);
-  setBadge('err', '⚠️ Offline');
-}
-
-onSnapshot(DOC_REF, (snap) => {
+onSnapshot(DOC_REF, async (snap) => {
   if (ignoreNextSnapshot) {
     ignoreNextSnapshot = false;
     return;
   }
   if (snap.exists() && snap.data().state) {
-    window.__therapy_setState(snap.data().state);
+    let remoteState = snap.data().state;
+    
+    // Se è la prima volta che apro la pagina, imposto la data a oggi
+    if (firstSnapshot) {
+      const oggi = new Date();
+      const todayIso = oggi.getFullYear() + '-' +
+                       String(oggi.getMonth()+1).padStart(2,'0') + '-' +
+                       String(oggi.getDate()).padStart(2,'0');
+      remoteState = { ...remoteState, selectedDate: todayIso };
+      firstSnapshot = false;
+      // Riscrivo su Firebase per allineare tutti i dispositivi
+      await setDoc(DOC_REF, { state: remoteState, updatedAt: Date.now() });
+    }
+    
+    window.__therapy_setState(remoteState);
     setBadge('ok', '🟢 Sincronizzato');
+  } else {
+    if (firstSnapshot) {
+      const local = window.__therapy_getState();
+      const oggi = new Date();
+      const todayIso = oggi.getFullYear() + '-' +
+                       String(oggi.getMonth()+1).padStart(2,'0') + '-' +
+                       String(oggi.getDate()).padStart(2,'0');
+      const newState = { ...local, selectedDate: todayIso };
+      firstSnapshot = false;
+      await setDoc(DOC_REF, { state: newState, updatedAt: Date.now() });
+      window.__therapy_setState(newState);
+      setBadge('ok', '🟢 Sincronizzato');
+    }
   }
 }, (err) => {
   console.error('Errore listener:', err);
